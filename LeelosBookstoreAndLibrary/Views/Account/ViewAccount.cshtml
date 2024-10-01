@@ -1,0 +1,30 @@
+﻿@model LeelosBookstoreAndLibrary.Models.User
+
+@{
+    ViewBag.Title = "Your Account";
+}
+
+<h2>Your Account</h2>
+
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+
+        <dt>First Name</dt>
+        <dd>@Html.DisplayFor(model => model.FirstName)</dd>
+
+        <dt>Last Name</dt>
+        <dd>@Html.DisplayFor(model => model.LastName)</dd>
+
+        <dt>Email</dt>
+        <dd>@Html.DisplayFor(model => model.Email)</dd>
+
+        <dt>Date of Birth</dt>
+        <dd>@Html.DisplayFor(model => model.DateOfBirth)</dd>
+
+    </dl>
+</div>
+
+<p>
+    @Html.ActionLink("Edit Account", "EditAccount", new { id = Model.Id }) 
+</p>

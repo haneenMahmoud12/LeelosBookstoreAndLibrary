@@ -1,0 +1,53 @@
+﻿@model IEnumerable<LeelosBookstoreAndLibrary.Models.ShoppingCartItem>
+
+@{
+    ViewBag.Title = "View Cart";
+}
+
+<h2>Your Shopping Cart</h2>
+
+@if (!Model.Any()) // Check if the cart is empty
+{
+    <div class="alert alert-warning">
+        <p>Your cart is empty.</p>
+        @Html.ActionLink("Back to Home Page", "Index", "Home", null, new { @class = "btn btn-primary" })
+    </div>
+}
+else
+{
+    <form method="post" action="@Url.Action("UpdateCart", "ShoppingCart")">
+        <!-- UpdateCart method to handle updates -->
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Book Title</th>
+                    <th>Quantity</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Book.Title</td> <!-- Adjust this if your ShoppingCartItem has a navigation property to Book -->
+                        <td>
+                            <input type="number" name="quantities[@item.Id]" value="@item.Quantity" min="1" max="@item.Book.StockQuantity" /> <!-- Editable quantity -->
+                        </td>
+                        <td>@item.Price</td>
+                        <td>
+                            @Html.ActionLink("Remove", "RemoveFromCart", new { id = item.Id }) <!-- Add a remove action link if necessary -->
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div>
+            <strong>Total Items: @Model.Sum(i => i.Quantity)</strong> <!-- Display total items -->
+            <strong>Total Price: @Model.Sum(i => i.Quantity * i.Price)</strong> <!-- Display total price -->
+        </div>
+
+        <button type="submit" class="btn btn-primary">Update Cart</button> <!-- Button to update quantities -->
+        <a href="@Url.Action("Checkout", "ShoppingCart")" class="btn btn-success">Proceed to Checkout</a> <!-- Checkout button -->
+    </form>
+}

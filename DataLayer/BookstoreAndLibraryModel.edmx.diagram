@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="f8320783f95d49f684a497867cd8e47c" Name="Diagram1" ZoomLevel="59">
+        <EntityTypeShape EntityType="LeelosBookstoreEFDBModel.Author" Width="1.5" PointX="0.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="LeelosBookstoreEFDBModel.Book" Width="1.5" PointX="3" PointY="3.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="LeelosBookstoreEFDBModel.Borrow" Width="1.5" PointX="5.25" PointY="4.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="LeelosBookstoreEFDBModel.OrderItem" Width="1.5" PointX="8.25" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="LeelosBookstoreEFDBModel.Order" Width="1.5" PointX="6" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="LeelosBookstoreEFDBModel.Publisher" Width="1.5" PointX="0.75" PointY="0.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="LeelosBookstoreEFDBModel.Role" Width="1.5" PointX="1.5" PointY="10.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="LeelosBookstoreEFDBModel.ShoppingCartItem" Width="1.5" PointX="8.25" PointY="2" IsExpanded="true" />
+        <EntityTypeShape EntityType="LeelosBookstoreEFDBModel.ShoppingCart" Width="1.5" PointX="6" PointY="10" IsExpanded="true" />
+        <EntityTypeShape EntityType="LeelosBookstoreEFDBModel.User" Width="1.5" PointX="3.75" PointY="9.375" IsExpanded="true" />
+        <AssociationConnector Association="LeelosBookstoreEFDBModel.FK_Author" ManuallyRouted="false" />
+        <AssociationConnector Association="LeelosBookstoreEFDBModel.FK__Borrows__BookId__37A5467C" ManuallyRouted="false" />
+        <AssociationConnector Association="LeelosBookstoreEFDBModel.FK__OrderItem__BookI__3E52440B" ManuallyRouted="false" />
+        <AssociationConnector Association="LeelosBookstoreEFDBModel.FK__ShoppingC__BookI__4222D4EF" ManuallyRouted="false" />
+        <AssociationConnector Association="LeelosBookstoreEFDBModel.FK_Publisher" ManuallyRouted="false" />
+        <AssociationConnector Association="LeelosBookstoreEFDBModel.FK__Borrows__UserId__36B12243" ManuallyRouted="false" />
+        <AssociationConnector Association="LeelosBookstoreEFDBModel.FK__OrderItem__Order__3F466844" ManuallyRouted="false" />
+        <AssociationConnector Association="LeelosBookstoreEFDBModel.FK__Orders__UserId__3B75D760" ManuallyRouted="false" />
+        <AssociationConnector Association="LeelosBookstoreEFDBModel.FK__Users__RoleId__2C3393D0" ManuallyRouted="false" />
+        <AssociationConnector Association="LeelosBookstoreEFDBModel.FK__ShoppingC__UserI__44FF419A" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="LeelosBookstoreEFDBModel.ShoppingCart_ShoppingCartItems" Width="1.5" PointX="10.5" PointY="5.875" />
+        <AssociationConnector Association="LeelosBookstoreEFDBModel.FK__ShoppingC__Shopp__4CA06362" />
+        <AssociationConnector Association="LeelosBookstoreEFDBModel.FK__ShoppingC__Shopp__4D94879B" />
+        </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

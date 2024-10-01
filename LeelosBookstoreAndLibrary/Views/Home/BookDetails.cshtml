@@ -1,0 +1,89 @@
+﻿@model LeelosBookstoreAndLibrary.Models.Book
+
+@{
+    ViewBag.Title = "BookDetails";
+}
+
+<h2>Book Details</h2>
+
+@if (TempData["Message"] != null)
+{
+    <script type="text/javascript">
+        alert('@TempData["Message"]');
+    </script>
+}
+
+
+<!-- Book Details Section -->
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>@Html.DisplayNameFor(model => model.Title)</dt>
+        <dd>@Html.DisplayFor(model => model.Title)</dd>
+
+        <dt>@Html.DisplayNameFor(model => model.Description)</dt>
+        <dd>@Html.DisplayFor(model => model.Description)</dd>
+
+        <dt>@Html.DisplayNameFor(model => model.AuthorId)</dt>
+        <dd>@Html.DisplayFor(model => model.AuthorId)</dd>
+
+        <dt>@Html.DisplayNameFor(model => model.Genre)</dt>
+        <dd>@Html.DisplayFor(model => model.Genre)</dd>
+
+        <dt>@Html.DisplayNameFor(model => model.Price)</dt>
+        <dd>@Html.DisplayFor(model => model.Price)</dd>
+
+        <dt>@Html.DisplayNameFor(model => model.Rating)</dt>
+        <dd>@Html.DisplayFor(model => model.Rating)</dd>
+
+        <dt>@Html.DisplayNameFor(model => model.PublisherId)</dt>
+        <dd>@Html.DisplayFor(model => model.PublisherId)</dd>
+
+        <dt>@Html.DisplayNameFor(model => model.DatePublished)</dt>
+        <dd>@Html.DisplayFor(model => model.DatePublished)</dd>
+
+        <dt>@Html.DisplayNameFor(model => model.NumberOfPages)</dt>
+        <dd>@Html.DisplayFor(model => model.NumberOfPages)</dd>
+
+        <!-- Add to Cart Section -->
+        <form action="@Url.Action("AddToCart", "ShoppingCart")" method="post">
+            @Html.Hidden("bookId", Model.Id)
+            <label>Quantity: </label>
+            <input type="number" name="quantity" value="1" min="1" max="@Model.StockQuantity" />
+            <button type="submit" class="btn btn-primary">Add to Cart</button>
+        </form>
+    </dl>
+</div>
+
+<!-- Modal HTML (keep it at the bottom for better DOM availability) -->
+@*
+    <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cartModalLabel">Cart Update</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    @TempData["Message"]
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>*@
+
+<!-- Admin Actions -->
+<p>
+    @if (!string.IsNullOrEmpty(Session["UserId"]?.ToString()) && (int)Session["UserRole"] == 2)
+    {
+        @Html.ActionLink("Edit", "EditBook", new { id = Model.Id })
+        @Html.Label("|")
+        @Html.ActionLink("Delete", "Delete", new { id = Model.Id });
+        <br />
+    }
+
+    @Html.ActionLink("Back to List", "Index")
+</p>
+
