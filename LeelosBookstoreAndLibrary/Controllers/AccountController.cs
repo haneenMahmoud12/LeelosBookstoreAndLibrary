@@ -99,12 +99,89 @@ namespace LeelosBookstoreAndLibrary.Controllers
                 return HttpNotFound();
             }
 
-            var model = new Models.User
+            var userModel = new Models.User
             {
+                Id = user.Id,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email,
                 DateOfBirth = (System.DateTime)user.DateOfBirth
+            };
+
+            var address = db.Addresses.FirstOrDefault(a => a.UserId == user.Id);
+            ShippingInfo addressModel = new ShippingInfo
+            {
+                Address = address.Address1,
+                City = address.City,
+                Governorate = address.Governorate,
+                Country = address.Country,
+                ZipCode = address.ZipCode,
+                PhoneNumber = address.PhoneNumber
+            };
+
+            var orders = db.Orders.Where(order => order.UserId == userId).Select(o => new Models.Order {
+                Id = o.Id,
+                UserId = o.UserId,
+                OrderDate = o.OrderDate,
+                Status = o.Status,
+                TotalPrice = o.TotalPrice,
+                OrderItems = db.OrderItems.Where(oi => oi.OrderId == o.Id).Select(oi => new Models.OrderItem
+                {
+                    Book = new Models.Book
+                    {
+                        Id = oi.Book.Id,
+                        Title = oi.Book.Title,
+                        AuthorId = oi.Book.AuthorId,
+                        PublisherId = oi.Book.PublisherId,
+                        Price = (float)oi.Book.Price,
+                        StockQuantity = oi.Book.StockQuantity,
+                        Genre = oi.Book.Genre,
+                        DatePublished = oi.Book.DatePublished,
+                        Description = oi.Book.Description,
+                        Rating = oi.Book.Rating,
+                        NumberOfPages = oi.Book.NumberOfPages,
+                        ImageData = oi.Book.ImageData,
+                        ImageMimeType = oi.Book.ImageMimeType
+                    },
+                    Quantity = oi.Quantity,
+                    Price = oi.Price
+                }).ToList()
+        }).ToList();
+
+            foreach(var order in orders)
+            {
+                var orderItem = db.OrderItems.Where(oi => oi.OrderId == order.Id).Select(oi => new Models.OrderItem
+                {
+                    Book = new Models.Book
+                    {
+                        Id = oi.Book.Id,
+                        Title = oi.Book.Title,
+                        AuthorId = oi.Book.AuthorId,
+                        PublisherId = oi.Book.PublisherId,
+                        Price = (float)oi.Book.Price,
+                        StockQuantity = oi.Book.StockQuantity,
+                        Genre = oi.Book.Genre,
+                        DatePublished = oi.Book.DatePublished,
+                        Description = oi.Book.Description,
+                        Rating = oi.Book.Rating,
+                        NumberOfPages = oi.Book.NumberOfPages,
+                        ImageData = oi.Book.ImageData,
+                        ImageMimeType = oi.Book.ImageMimeType
+                    },
+                    Quantity = oi.Quantity,
+                    Price = oi.Price
+                }).ToList();
+            }
+
+            var model = new UserViewModel
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                DateOfBirth = (System.DateTime)user.DateOfBirth,
+                Email = user.Email,
+                Address = addressModel,
+                Orders = orders
             };
 
             return View(model);
@@ -128,14 +205,27 @@ namespace LeelosBookstoreAndLibrary.Controllers
                 return HttpNotFound();
             }
 
-            var model = new Models.User
+            var address = db.Addresses.FirstOrDefault(a => a.UserId == user.Id);
+
+            var model = new Models.UserViewModel
             {
                 Id = user.Id,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email,
-                DateOfBirth = (System.DateTime)user.DateOfBirth
+                DateOfBirth = (System.DateTime)user.DateOfBirth,
+                Address = new ShippingInfo
+                {
+                    Address = address.Address1,
+                    City = address.City,
+                    Country = address.Country,
+                    Governorate = address.Governorate,
+                    ZipCode = address.ZipCode,
+                    PhoneNumber = address.PhoneNumber
+                }
             };
+
+            
 
             return View(model);
         }
@@ -144,19 +234,30 @@ namespace LeelosBookstoreAndLibrary.Controllers
         // POST: Account/EditAccount
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult EditAccount(Models.User user, string currentPassword, string newPassword, string confirmNewPassword)
+        public ActionResult EditAccount(Models.UserViewModel user, string currentPassword, string newPassword, string confirmNewPassword)
         {
             List<string> errorMessages = new List<string>();
 
             using (LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities())
             {
                 var userToUpdate = db.Users.FirstOrDefault(u => u.Id == user.Id);
+                var userAddress = db.Addresses.FirstOrDefault(a => a.UserId == user.Id);
 
                 if (userToUpdate != null)
                 {
                     userToUpdate.FirstName = user.FirstName;
                     userToUpdate.LastName = user.LastName;
                     userToUpdate.Email = user.Email;
+
+                    if(userAddress != null)
+                    {
+                        userAddress.PhoneNumber = user.Address.PhoneNumber;
+                        userAddress.Address1 = user.Address.Address;
+                        userAddress.City = user.Address.City;
+                        userAddress.Governorate = user.Address.Governorate;
+                        userAddress.Country = user.Address.Country;
+                        userAddress.ZipCode = user.Address.ZipCode;
+                    }
 
                     if (!string.IsNullOrEmpty(currentPassword))
                     {

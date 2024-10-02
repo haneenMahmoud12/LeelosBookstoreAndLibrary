@@ -15,39 +15,69 @@
 }
 else
 {
-    <form method="post" action="@Url.Action("UpdateCart", "ShoppingCart")">
-        <!-- UpdateCart method to handle updates -->
-        <table class="table">
-            <thead>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Book Title</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
                 <tr>
-                    <th>Book Title</th>
-                    <th>Quantity</th>
-                    <th>Actions</th>
+                    <td>@item.Book.Title</td>
+                    <td>
+                        <input type="number" class="quantity-input" data-item-id="@item.Id" value="@item.Quantity" min="1" max="@item.Book.StockQuantity" />
+                    </td>
+                    <td class="item-price" data-item-id="@item.Id">@item.Price</td>
+                    <td>
+                        @Html.ActionLink("Remove", "RemoveFromCart", new { id = item.Id }) 
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td>@item.Book.Title</td> <!-- Adjust this if your ShoppingCartItem has a navigation property to Book -->
-                        <td>
-                            <input type="number" name="quantities[@item.Id]" value="@item.Quantity" min="1" max="@item.Book.StockQuantity" /> <!-- Editable quantity -->
-                        </td>
-                        <td>@item.Price</td>
-                        <td>
-                            @Html.ActionLink("Remove", "RemoveFromCart", new { id = item.Id }) <!-- Add a remove action link if necessary -->
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+            }
+        </tbody>
+    </table>
 
-        <div>
-            <strong>Total Items: @Model.Sum(i => i.Quantity)</strong> <!-- Display total items -->
-            <strong>Total Price: @Model.Sum(i => i.Quantity * i.Price)</strong> <!-- Display total price -->
-        </div>
-
-        <button type="submit" class="btn btn-primary">Update Cart</button> <!-- Button to update quantities -->
-        <a href="@Url.Action("Checkout", "ShoppingCart")" class="btn btn-success">Proceed to Checkout</a> <!-- Checkout button -->
-    </form>
+    <div>
+        <strong>Total Items: <span id="total-items">@Model.Sum(i => i.Quantity)</span></strong>
+        <br />
+        <strong>Total Price: <span id="total-price">@Model.Sum(i => i.Quantity * i.Price)</span></strong>
+        <br />
+        <a href="@Url.Action("Shipping", "Shipping")" class="btn btn-success">Proceed to Shipping</a>
+    </div>
 }
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Attach change event to quantity input
+        $('.quantity-input').on('change', function() {
+            var itemId = $(this).data('item-id'); // Get item ID
+            var newQuantity = $(this).val(); // Get the new quantity
+
+            // Send AJAX request to update the quantity
+            $.ajax({
+                url: '@Url.Action("UpdateItemQuantity", "ShoppingCart")',
+                type: 'POST',
+                data: {
+                    id: itemId,
+                    quantity: newQuantity
+                },
+                success: function(response) {
+                    // Update the individual item price
+                    $('.item-price[data-item-id="' + itemId + '"]').text(response.updatedPrice);
+
+                    // Update the total price and total items
+                    $('#total-items').text(response.totalItems);
+                    $('#total-price').text(response.totalPrice);
+                },
+                error: function() {
+                    alert("Error updating cart. Please try again.");
+                }
+            });
+        });
+    });
+</script>

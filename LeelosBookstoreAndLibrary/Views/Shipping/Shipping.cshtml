@@ -1,0 +1,75 @@
+﻿@model LeelosBookstoreAndLibrary.Models.ShippingInfo
+
+@{
+    ViewBag.Title = "Shipping";
+}
+
+<h2>Shipping</h2>
+
+@if (Model == null || string.IsNullOrEmpty(Model.Address))
+{
+    <p>No shipping address found.</p>
+}
+else
+{
+    <div id="saved-address" style="display: block;">
+        <h3>Your Shipping Address:</h3>
+        <p>@Model.Address, @Model.City, @Model.Governorate, @Model.ZipCode, @Model.Country</p> <!-- Display the shipping address -->
+        <p>Phone Number: @Model.PhoneNumber</p>
+        <button id="choose-different-address" class="btn btn-secondary">Choose a Different Address</button>
+        <br /><br />
+        <a href="@Url.Action("Payment", "Payment")" class="btn btn-success">Proceed to Payment</a>
+    </div>
+}
+
+<!-- Form to enter a new address -->
+<div id="shipping-form" style="display:@(Model == null || string.IsNullOrEmpty(Model.Address) ? "block" : "none");">
+    @using (Html.BeginForm("ConfirmShipping", "Shipping", FormMethod.Post))
+    {
+        <div class="form-group">
+            <label for="address">Address:</label>
+            @Html.TextBox("Address", Model?.Address, new { @class = "form-control", required = "required" })
+            @Html.ValidationMessage("Address")
+        </div>
+
+        <div class="form-group">
+            <label for="city">City:</label>
+            @Html.TextBox("City", Model?.City, new { @class = "form-control", required = "required" })
+            @Html.ValidationMessage("City")
+        </div>
+
+        <div class="form-group">
+            <label for="governate">State:</label>
+            @Html.TextBox("Governorate", Model?.Governorate, new { @class = "form-control", required = "required" })
+            @Html.ValidationMessage("Governorate")
+        </div>
+
+        <div class="form-group">
+            <label for="zip">ZIP Code:</label>
+            @Html.TextBox("ZipCode", Model?.ZipCode, new { @class = "form-control", required = "required" })
+            @Html.ValidationMessage("ZipCode")
+        </div>
+
+        <div class="form-group">
+            <label for="country">Country:</label>
+            @Html.TextBox("Country", Model?.Country, new { @class = "form-control", required = "required" })
+            @Html.ValidationMessage("Country")
+        </div>
+
+        <div class="form-group">
+            <label for="phoneNumber">Phone Number:</label>
+            @Html.TextBox("PhoneNumber", Model?.PhoneNumber, new { @class = "form-control", required = "required" })
+            @Html.ValidationMessage("PhoneNumber")
+        </div>
+
+        <button type="submit" class="btn btn-primary">Confirm Shipping</button>
+    }
+</div>
+
+<script>
+    // JavaScript to toggle between saved address and new address form
+    document.getElementById('choose-different-address').addEventListener('click', function () {
+        document.getElementById('saved-address').style.display = 'none';
+        document.getElementById('shipping-form').style.display = 'block';
+    });
+</script>

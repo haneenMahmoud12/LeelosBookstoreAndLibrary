@@ -1,0 +1,18 @@
+﻿@{
+    ViewBag.Title = "Payment";
+}
+
+<h2>Payment</h2>
+
+@using (Html.BeginForm("ProcessPayment", "Payment", FormMethod.Post))
+{
+    <div class="form-group">
+        <h3>Select Payment Method:</h3>
+        <label>
+            <input type="radio" name="paymentMethod" value="CashOnDelivery" checked />
+            Cash on Delivery
+        </label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Proceed to Checkout</button>
+}

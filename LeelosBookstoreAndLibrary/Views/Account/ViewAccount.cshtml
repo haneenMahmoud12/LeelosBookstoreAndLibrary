@@ -1,4 +1,4 @@
-﻿@model LeelosBookstoreAndLibrary.Models.User
+﻿@model LeelosBookstoreAndLibrary.Models.UserViewModel
 
 @{
     ViewBag.Title = "Your Account";
@@ -10,21 +10,61 @@
     <hr />
     <dl class="dl-horizontal">
 
-        <dt>First Name</dt>
+        <dt>First Name:</dt>
         <dd>@Html.DisplayFor(model => model.FirstName)</dd>
 
-        <dt>Last Name</dt>
+        <dt>Last Name:</dt>
         <dd>@Html.DisplayFor(model => model.LastName)</dd>
 
-        <dt>Email</dt>
+        <dt>Email:</dt>
         <dd>@Html.DisplayFor(model => model.Email)</dd>
 
-        <dt>Date of Birth</dt>
+        <dt>Date of Birth:</dt>
         <dd>@Html.DisplayFor(model => model.DateOfBirth)</dd>
+
+        <dt>Address:</dt>
+        <dd>@Html.DisplayFor(model => model.Address.Address), @Html.DisplayFor(model => model.Address.City), @Html.DisplayFor(model => model.Address.Governorate), @Html.DisplayFor(model => model.Address.Country).</dd>
+
+        <dt>Phone number:</dt>
+        <dd>@Html.DisplayFor(model => model.Address.PhoneNumber) </dd>
+        <h3>Your Orders</h3>
+
+        @foreach (var order in Model.Orders)
+        {
+    <div>
+        <h4>Order #@order.Id - @order.OrderDate.ToShortDateString()</h4>
+        <p>Status: @order.Status</p>
+        <p>Total Price: @order.TotalPrice</p>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Book Title</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in order.OrderItems)
+                {
+                    <tr>
+                        <td>@item.Book.Title</td>
+                        <td>@item.Quantity</td>
+                        <td>@item.Price</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @if (order.Status != "Recieved")
+        {
+            @Html.ActionLink("Cancel Order", "CancelOrder","Order", new { id = order.Id }, null)
+        }
+    </div>
+        }
 
     </dl>
 </div>
 
 <p>
-    @Html.ActionLink("Edit Account", "EditAccount", new { id = Model.Id }) 
+    @Html.ActionLink("Edit Account", "EditAccount", new { id = Model.Id })
 </p>

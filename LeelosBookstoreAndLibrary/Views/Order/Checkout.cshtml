@@ -1,0 +1,54 @@
+﻿@model LeelosBookstoreAndLibrary.Models.CheckoutViewModel
+
+@{
+    ViewBag.Title = "Checkout";
+}
+
+<h2>Checkout</h2>
+
+<!-- User Info -->
+<h3>User Information</h3>
+<p>Name: @Model.User.FirstName @Model.User.LastName</p>
+<p>Email: @Model.User.Email</p>
+
+<!-- Shipping Info -->
+<h3>Shipping Information</h3>
+<p>Address: @Model.ShippingInfo.Address</p>
+<p>City: @Model.ShippingInfo.City</p>
+<p>Governorate: @Model.ShippingInfo.Governorate</p>
+<p>ZIP Code: @Model.ShippingInfo.ZipCode</p>
+<p>Country: @Model.ShippingInfo.Country</p>
+<p>Phone Number: @Model.ShippingInfo.PhoneNumber</p>
+
+<!-- Payment Information -->
+<h3>Payment Information</h3>
+<p>Payment Method: @Model.PaymentMethod</p>
+@*<p>Card Number: @Model.CardNumber</p>*@ <!-- Displaying card number should be handled securely! -->
+<!-- Order Details -->
+<h3>Order Details</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Book Title</th>
+            <th>Quantity</th>
+            <th>Price</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.cartItems)
+        {
+            <tr>
+                <td>@item.Book.Title</td>
+                <td>@item.Quantity</td>
+                <td>@item.Price</td>
+            </tr>
+        }
+    </tbody>
+</table>
+<p>Total Price: @Model.TotalPrice</p>
+
+<!-- Confirm Button -->
+<form method="post" action="@Url.Action("ConfirmOrder", "Order")">
+    <input type="hidden" name="price" value="@Model.TotalPrice" />
+    <button type="submit" class="btn btn-primary">Confirm Order</button>
+</form>

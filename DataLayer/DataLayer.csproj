@@ -50,6 +50,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Address.cs">
+      <DependentUpon>BookstoreAndLibraryModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Author.cs">
       <DependentUpon>BookstoreAndLibraryModel.tt</DependentUpon>
     </Compile>

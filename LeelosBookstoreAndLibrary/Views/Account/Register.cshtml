@@ -40,6 +40,11 @@
         @Html.ValidationMessageFor(m => m.DateOfBirth)
     </div>
 
+   @* <div class="form-group">
+        @Html.LabelFor(m => m.Address)
+        @Html.TextBoxFor(m => m.Address, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Address)
+    </div>*@
 
     <button type="submit" class="btn btn-primary">Register</button>
 }

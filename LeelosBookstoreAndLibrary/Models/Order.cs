@@ -13,7 +13,11 @@ namespace LeelosBookstoreAndLibrary.Models
         public decimal TotalPrice { get; set; }
         public string Status { get; set; }
 
+        public List<OrderItem> OrderItems { get; set; }
+        //public int AddressId { get; set; }
+
         // Navigation property
         public virtual User User { get; set; }
+        //public virtual ShippingInfo Address { get; set; }
     }
 }
