@@ -13,16 +13,14 @@ namespace LeelosBookstoreAndLibrary.Controllers
         {
             LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities();
 
-            // Check if the user is logged in
             if (Session["UserId"] == null)
             {
                 TempData["ErrorMessage"] = "Please login first to add books to your cart.";
-                return RedirectToAction("Login", "Account"); // Redirect to the login page or the appropriate action
+                return RedirectToAction("Login", "Account"); 
             }
 
             int userId = (int)Session["UserId"];
 
-            // Check if the user already has a shopping cart
             var cart = db.ShoppingCarts.FirstOrDefault(c => c.UserId == userId);
             if (cart == null)
             {
@@ -34,7 +32,6 @@ namespace LeelosBookstoreAndLibrary.Controllers
                 db.SaveChanges(); 
             }
 
-            // Create a new ShoppingCartItem
             var book = db.Books.FirstOrDefault(b => b.Id == bookId);
             var shoppingCartItem = new ShoppingCartItem
             {
@@ -43,6 +40,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
                 Price = (decimal) book.Price
             };
             db.ShoppingCartItems.Add(shoppingCartItem);
+            //book.StockQuantity -= quantity;
             db.SaveChanges();
 
             db.ShoppingCart_ShoppingCartItems.Add(new ShoppingCart_ShoppingCartItems
@@ -53,18 +51,18 @@ namespace LeelosBookstoreAndLibrary.Controllers
 
             db.SaveChanges();
 
-            // Pass success message to the view using TempData or ViewBag
+            
             TempData["Message"] = "Book added to cart!";
             return RedirectToAction("BookDetails","Home", new { id = bookId });
         }
 
         public ActionResult ViewCart()
         {
-            // Check if the user is logged in
+            
             if (Session["UserId"] == null)
             {
                 TempData["ErrorMessage"] = "Please login first to add books to your cart.";
-                return RedirectToAction("Login", "Account"); // Redirect to the login page or the appropriate action
+                return RedirectToAction("Login", "Account"); 
             }
             int userId = (int)Session["UserId"];
             LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities();
@@ -76,17 +74,17 @@ namespace LeelosBookstoreAndLibrary.Controllers
                 return View(new List<LeelosBookstoreAndLibrary.Models.ShoppingCartItem>());
             }
 
-            // Fetch shopping cart items with their associated books using a join
+            
             var cartItems = db.ShoppingCart_ShoppingCartItems
                 .Where(cs => cs.ShoppingCartId == cart.Id)
                 .Select(cs => new
                 {
                     ShoppingCartItem = cs.ShoppingCartItem,
-                    Book = cs.ShoppingCartItem.Book // Ensure Book is fetched in the same query
+                    Book = cs.ShoppingCartItem.Book 
         })
                 .ToList();
 
-            // Now map the results back to your ShoppingCartItem model
+            
             var shoppingCartItemsModel = cartItems.Select(item => new LeelosBookstoreAndLibrary.Models.ShoppingCartItem
             {
                 Id = item.ShoppingCartItem.Id,
@@ -111,14 +109,12 @@ namespace LeelosBookstoreAndLibrary.Controllers
                 var cartItem = db.ShoppingCartItems.Find(id);
                 if (cartItem != null)
                 {
-                    // Update the quantity and price of the cart item
                     cartItem.Quantity = quantity;
-                    cartItem.Price = (decimal)(cartItem.Book.Price * quantity); // Calculate new price
+                    cartItem.Price = (decimal)(cartItem.Book.Price * quantity);
                     db.Entry(cartItem).State = EntityState.Modified;
                     db.SaveChanges();
                 }
 
-                // Get the user's shopping cart
                 int userId = (int)Session["UserId"];
                 var cart = db.ShoppingCarts.FirstOrDefault(c => c.UserId == userId);
 
@@ -132,7 +128,6 @@ namespace LeelosBookstoreAndLibrary.Controllers
                     });
                 }
 
-                // Get all the items in the user's shopping cart
                 var cartItems = db.ShoppingCart_ShoppingCartItems
                     .Where(cs => cs.ShoppingCartId == cart.Id)
                     .Select(cs => cs.ShoppingCartItem)
@@ -157,7 +152,6 @@ namespace LeelosBookstoreAndLibrary.Controllers
             var item = db.ShoppingCartItems.Find(id);
             if (item != null)
             {
-                // Remove any reference to this item in ShoppingCart_ShoppingCartItems
                 var shoppingCartLinks = db.ShoppingCart_ShoppingCartItems
                                            .Where(link => link.ShoppingCartItemId == id )
                                            .ToList();
@@ -167,12 +161,19 @@ namespace LeelosBookstoreAndLibrary.Controllers
                     db.ShoppingCart_ShoppingCartItems.Remove(link);
                 }
 
-                // Now remove the ShoppingCartItem
+               /* var book = db.Books.FirstOrDefault(b => b.Id == item.Book.Id);
+                book.StockQuantity += item.Quantity;*/
                 db.ShoppingCartItems.Remove(item);
                 db.SaveChanges();
             }
 
             return RedirectToAction("ViewCart");
+        }
+
+        public ActionResult ProceedToShipping()
+        {
+            Session["Process"] = "Buy";
+            return RedirectToAction("Shipping", "Shipping");
         }
 
     }

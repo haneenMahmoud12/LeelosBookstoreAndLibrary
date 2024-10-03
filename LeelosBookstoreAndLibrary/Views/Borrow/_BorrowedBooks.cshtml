@@ -1,0 +1,33 @@
+﻿@model IEnumerable<LeelosBookstoreAndLibrary.Models.Borrow>
+
+<h2>Your Borrowed Books</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Book Title</th>
+            <th>Borrow Date</th>
+            <th>Due Date</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var borrow in Model)
+        {
+            <tr>
+                <td>@borrow.Book.Title</td>
+                <td>@borrow.BorrowDate.ToShortDateString()</td>
+                <td>@borrow.DueDate.ToShortDateString()</td>
+                <td>@(borrow.IsReturned ? "Returned" : "Not Returned")</td>
+                <td>
+                    @if (!borrow.IsReturned)
+                    {
+                        @Html.ActionLink("Return", "ReturnBook", "Borrow", new { borrowId = borrow.Id }, new { @class = "btn btn-primary" })
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+

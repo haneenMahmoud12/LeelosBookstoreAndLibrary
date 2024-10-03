@@ -1,4 +1,4 @@
-﻿@model LeelosBookstoreAndLibrary.Models.CheckoutViewModel
+﻿@model LeelosBookstoreAndLibrary.Models.BorrowCheckoutViewModel
 
 @{
     ViewBag.Title = "Checkout";
@@ -30,7 +30,6 @@
     <thead>
         <tr>
             <th>Book Title</th>
-            <th>Quantity</th>
             <th>Price</th>
         </tr>
     </thead>
@@ -39,8 +38,7 @@
         {
             <tr>
                 <td>@item.Book.Title</td>
-                <td>@item.Quantity</td>
-                <td>@item.Price</td>
+                <td>@((decimal)item.Book.Price * 0.25m)</td>
             </tr>
         }
     </tbody>
@@ -52,4 +50,6 @@
     <input type="hidden" name="price" value="@Model.TotalPrice" />
     <button type="submit" class="btn btn-primary">Confirm Order</button>
 </form>
+
+
 

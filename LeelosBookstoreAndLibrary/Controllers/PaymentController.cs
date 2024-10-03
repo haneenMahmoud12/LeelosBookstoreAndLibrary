@@ -20,7 +20,14 @@ namespace LeelosBookstoreAndLibrary.Controllers
         {
             if (paymentMethod == "CashOnDelivery")
             {
-                return RedirectToAction("Checkout", "Order");
+                if (Session["Process"] != null && Session["Process"].Equals("Borrow"))
+                {
+                    return RedirectToAction("BorrowCheckout","Order");
+    }
+                else if (Session["Process"] != null && Session["Process"].Equals("Buy"))
+                {
+                    return RedirectToAction("Checkout", "Order");
+                }
             }
 
             ModelState.AddModelError("", "Invalid payment method.");

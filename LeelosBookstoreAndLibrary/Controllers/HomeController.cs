@@ -42,7 +42,12 @@ namespace LeelosBookstoreAndLibrary.Controllers
                     DatePublished = book.DatePublished,
                     NumberOfPages = book.NumberOfPages,
                     ImageData = book.ImageData,
-                    ImageMimeType = book.ImageMimeType
+                    ImageMimeType = book.ImageMimeType,
+                    Author = new Models.Author
+                    {
+                        FirstName = book.Author.FirstName,
+                        LastName = book.Author.LastName
+                    }
                 };
 
                 booksList.Add(bookModel);
@@ -206,7 +211,16 @@ namespace LeelosBookstoreAndLibrary.Controllers
                         DatePublished = book.DatePublished,
                         NumberOfPages = book.NumberOfPages,
                         ImageData = book.ImageData,
-                        ImageMimeType = book.ImageMimeType
+                        ImageMimeType = book.ImageMimeType,
+                        Author = new Models.Author
+                        {
+                            FirstName = book.Author.FirstName,
+                            LastName = book.Author.LastName,
+                        },
+                        Publisher = new Models.Publisher
+                        {
+                            Name = book.Publisher.Name
+                        }
                     };
                 }
             }

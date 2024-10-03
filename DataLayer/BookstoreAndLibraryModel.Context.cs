@@ -37,5 +37,7 @@ namespace DataLayer
         public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<ShoppingCart_ShoppingCartItems> ShoppingCart_ShoppingCartItems { get; set; }
         public virtual DbSet<Address> Addresses { get; set; }
+        public virtual DbSet<BorrowCartItem> BorrowCartItems { get; set; }
+        public virtual DbSet<BorrowCart> BorrowCarts { get; set; }
     }
 }

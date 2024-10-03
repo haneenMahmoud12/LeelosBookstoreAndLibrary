@@ -12,19 +12,13 @@ namespace DataLayer
     using System;
     using System.Collections.Generic;
     
-    public partial class Borrow
+    public partial class BorrowCartItem
     {
         public int Id { get; set; }
-        public int UserId { get; set; }
+        public int BorrowCartId { get; set; }
         public int BookId { get; set; }
-        public System.DateTime BorrowDate { get; set; }
-        public Nullable<System.DateTime> ReturnDate { get; set; }
-        public System.DateTime DueDate { get; set; }
-        public bool IsReturned { get; set; }
-        public Nullable<decimal> BorrowFee { get; set; }
-        public Nullable<decimal> LateFee { get; set; }
     
         public virtual Book Book { get; set; }
-        public virtual User User { get; set; }
+        public virtual BorrowCart BorrowCart { get; set; }
     }
 }

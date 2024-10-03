@@ -17,6 +17,7 @@ namespace LeelosBookstoreAndLibrary.Models
 
         // List of orders
         public List<Order> Orders { get; set; }
+        public IEnumerable<Borrow> BorrowedBooks { get; set; }
     }
 
 }

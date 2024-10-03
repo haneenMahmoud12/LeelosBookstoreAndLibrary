@@ -127,6 +127,7 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\BorrowController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\OrderController.cs" />
     <Compile Include="Controllers\PaymentController.cs" />
@@ -138,6 +139,9 @@
     <Compile Include="Models\Author.cs" />
     <Compile Include="Models\Book.cs" />
     <Compile Include="Models\Borrow.cs" />
+    <Compile Include="Models\BorrowCart.cs" />
+    <Compile Include="Models\BorrowCartItem.cs" />
+    <Compile Include="Models\BorrowCheckoutViewModel.cs" />
     <Compile Include="Models\CheckoutViewModel.cs" />
     <Compile Include="Models\Order.cs" />
     <Compile Include="Models\OrderItem.cs" />
@@ -204,6 +208,12 @@
     <Content Include="Views\Payment\Payment.cshtml" />
     <Content Include="Views\Order\Checkout.cshtml" />
     <Content Include="Views\Order\OrderSuccess.cshtml" />
+    <Content Include="Views\Borrow\ViewBorrowedBooks.cshtml" />
+    <Content Include="Views\Borrow\_BorrowedBooks.cshtml" />
+    <Content Include="Views\Borrow\ViewBorrowCart.cshtml" />
+    <Content Include="Views\Order\_BuyCheckout.cshtml" />
+    <Content Include="Views\Order\_BorrowCheckout.cshtml" />
+    <Content Include="Views\Order\BorrowCheckout.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

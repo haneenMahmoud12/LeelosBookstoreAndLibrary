@@ -18,5 +18,7 @@ namespace LeelosBookstoreAndLibrary.Models
         // Navigation properties
         public virtual User User { get; set; }
         public virtual Book Book { get; set; }
+        public decimal borrowFee { get; set; }
+        public decimal LateFee { get; set; }
     }
 }

@@ -77,6 +77,12 @@
     <Compile Include="Borrow.cs">
       <DependentUpon>BookstoreAndLibraryModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="BorrowCart.cs">
+      <DependentUpon>BookstoreAndLibraryModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BorrowCartItem.cs">
+      <DependentUpon>BookstoreAndLibraryModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Order.cs">
       <DependentUpon>BookstoreAndLibraryModel.tt</DependentUpon>
     </Compile>

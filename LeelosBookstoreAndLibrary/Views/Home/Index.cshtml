@@ -22,7 +22,7 @@
 <table class="table">
     <tr>
         <th>@Html.DisplayNameFor(model => model.Title)</th>
-        <th>@Html.DisplayNameFor(model => model.AuthorId)</th>
+        <th>Author</th>
         <th>@Html.DisplayNameFor(model => model.Genre)</th>
         <th>@Html.DisplayNameFor(model => model.Price)</th>
         <th></th>
@@ -32,7 +32,7 @@
     {
         <tr>
             <td>@Html.DisplayFor(modelItem => item.Title)</td>
-            <td>@Html.DisplayFor(modelItem => item.AuthorId)</td>
+            <td>@Html.DisplayFor(modelItem => item.Author.FirstName) @Html.DisplayFor(modelItem => item.Author.LastName)</td>
             <td>@Html.DisplayFor(modelItem => item.Genre)</td>
             <td>@Html.DisplayFor(modelItem => item.Price)</td>
             <td>

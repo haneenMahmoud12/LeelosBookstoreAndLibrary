@@ -1,8 +1,8 @@
-﻿@model LeelosBookstoreAndLibrary.Models.CheckoutViewModel
+﻿@model LeelosBookstoreAndLibrary.Models.BorrowCheckoutViewModel
 
-@{
+@*@{
     ViewBag.Title = "Checkout";
-}
+}*@
 
 <h2>Checkout</h2>
 
@@ -39,8 +39,7 @@
         {
             <tr>
                 <td>@item.Book.Title</td>
-                <td>@item.Quantity</td>
-                <td>@item.Price</td>
+                <td>@((decimal)item.Book.Price * 0.25m)</td>
             </tr>
         }
     </tbody>

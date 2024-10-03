@@ -30,6 +30,11 @@
         <AssociationConnector Association="LeelosBookstoreEFDBModel.FK__ShoppingC__Shopp__4D94879B" />
         <EntityTypeShape EntityType="LeelosBookstoreEFDBModel.Address" Width="1.5" PointX="6" PointY="12.75" />
         <AssociationConnector Association="LeelosBookstoreEFDBModel.FK__Address__UserId__534D60F1" />
+        <EntityTypeShape EntityType="LeelosBookstoreEFDBModel.BorrowCartItem" Width="1.5" PointX="8.25" PointY="10.375" />
+        <EntityTypeShape EntityType="LeelosBookstoreEFDBModel.BorrowCart" Width="1.5" PointX="6" PointY="17.25" />
+        <AssociationConnector Association="LeelosBookstoreEFDBModel.FK__BorrowCar__BookI__619B8048" />
+        <AssociationConnector Association="LeelosBookstoreEFDBModel.FK__BorrowCar__Borro__60A75C0F" />
+        <AssociationConnector Association="LeelosBookstoreEFDBModel.FK__BorrowCar__UserI__5DCAEF64" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

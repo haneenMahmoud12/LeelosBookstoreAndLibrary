@@ -21,6 +21,7 @@ namespace DataLayer
             this.Orders = new HashSet<Order>();
             this.ShoppingCarts = new HashSet<ShoppingCart>();
             this.Addresses = new HashSet<Address>();
+            this.BorrowCarts = new HashSet<BorrowCart>();
         }
     
         public int Id { get; set; }
@@ -40,5 +41,7 @@ namespace DataLayer
         public virtual ICollection<ShoppingCart> ShoppingCarts { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Address> Addresses { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<BorrowCart> BorrowCarts { get; set; }
     }
 }

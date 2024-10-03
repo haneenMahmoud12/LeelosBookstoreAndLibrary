@@ -23,15 +23,16 @@
             </div>
             <div class="collapse navbar-collapse">
                 <ul class="nav navbar-nav navbar-right">
-                    <li>@Html.ActionLink("Home", "Index", "Home")</li>
-                    <li>@Html.ActionLink("About", "About", "Home")</li>
-                    <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
+                    @*  <li>@Html.ActionLink("Home", "Index", "Home")</li>*@
+                    @* <li>@Html.ActionLink("About", "About", "Home")</li>*@
+                    @*<li>@Html.ActionLink("Contact", "Contact", "Home")</li>*@
 
                     <!-- Account-related links -->
                     @if (!string.IsNullOrEmpty(Session["UserId"]?.ToString()))
                     {
                         <li>@Html.ActionLink("Account", "ViewAccount", "Account")</li>
                         <li>@Html.ActionLink("Shopping Cart", "ViewCart", "ShoppingCart")</li>
+                        <li>@Html.ActionLink("Borrow Cart", "ViewBorrowCart", "Borrow")</li>
                         <li>@Html.ActionLink("Logout", "Logout", "Account")</li>
                     }
                     else

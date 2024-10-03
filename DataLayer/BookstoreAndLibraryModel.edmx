@@ -47,6 +47,21 @@
           <Property Name="ImageData" Type="varbinary(max)" />
           <Property Name="ImageMimeType" Type="nvarchar" MaxLength="250" />
         </EntityType>
+        <EntityType Name="BorrowCartItems">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="BorrowCartId" Type="int" Nullable="false" />
+          <Property Name="BookId" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="BorrowCarts">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserId" Type="int" Nullable="false" />
+        </EntityType>
         <EntityType Name="Borrows">
           <Key>
             <PropertyRef Name="Id" />
@@ -58,6 +73,8 @@
           <Property Name="ReturnDate" Type="datetime" />
           <Property Name="DueDate" Type="datetime" Nullable="false" />
           <Property Name="IsReturned" Type="bit" Nullable="false" />
+          <Property Name="BorrowFee" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="LateFee" Type="decimal" Precision="18" Scale="2" />
         </EntityType>
         <EntityType Name="OrderItems">
           <Key>
@@ -142,6 +159,46 @@
               <PropertyRef Name="Id" />
             </Principal>
             <Dependent Role="Address">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__BorrowCar__BookI__619B8048">
+          <End Role="Books" Type="Self.Books" Multiplicity="1" />
+          <End Role="BorrowCartItems" Type="Self.BorrowCartItems" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Books">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="BorrowCartItems">
+              <PropertyRef Name="BookId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__BorrowCar__Borro__60A75C0F">
+          <End Role="BorrowCarts" Type="Self.BorrowCarts" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="BorrowCartItems" Type="Self.BorrowCartItems" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="BorrowCarts">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="BorrowCartItems">
+              <PropertyRef Name="BorrowCartId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__BorrowCar__UserI__5DCAEF64">
+          <End Role="Users" Type="Self.Users" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="BorrowCarts" Type="Self.BorrowCarts" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="BorrowCarts">
               <PropertyRef Name="UserId" />
             </Dependent>
           </ReferentialConstraint>
@@ -360,6 +417,8 @@
           <EntitySet Name="Address" EntityType="Self.Address" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Authors" EntityType="Self.Authors" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Books" EntityType="Self.Books" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="BorrowCartItems" EntityType="Self.BorrowCartItems" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="BorrowCarts" EntityType="Self.BorrowCarts" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Borrows" EntityType="Self.Borrows" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="OrderItems" EntityType="Self.OrderItems" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Orders" EntityType="Self.Orders" Schema="dbo" store:Type="Tables" />
@@ -372,6 +431,18 @@
           <AssociationSet Name="FK__Address__UserId__534D60F1" Association="Self.FK__Address__UserId__534D60F1">
             <End Role="Users" EntitySet="Users" />
             <End Role="Address" EntitySet="Address" />
+          </AssociationSet>
+          <AssociationSet Name="FK__BorrowCar__BookI__619B8048" Association="Self.FK__BorrowCar__BookI__619B8048">
+            <End Role="Books" EntitySet="Books" />
+            <End Role="BorrowCartItems" EntitySet="BorrowCartItems" />
+          </AssociationSet>
+          <AssociationSet Name="FK__BorrowCar__Borro__60A75C0F" Association="Self.FK__BorrowCar__Borro__60A75C0F">
+            <End Role="BorrowCarts" EntitySet="BorrowCarts" />
+            <End Role="BorrowCartItems" EntitySet="BorrowCartItems" />
+          </AssociationSet>
+          <AssociationSet Name="FK__BorrowCar__UserI__5DCAEF64" Association="Self.FK__BorrowCar__UserI__5DCAEF64">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="BorrowCarts" EntitySet="BorrowCarts" />
           </AssociationSet>
           <AssociationSet Name="FK__Borrows__BookId__37A5467C" Association="Self.FK__Borrows__BookId__37A5467C">
             <End Role="Books" EntitySet="Books" />
@@ -476,6 +547,7 @@
           <NavigationProperty Name="OrderItems" Relationship="Self.FK__OrderItem__BookI__3E52440B" FromRole="Books" ToRole="OrderItems" />
           <NavigationProperty Name="ShoppingCartItems" Relationship="Self.FK__ShoppingC__BookI__4222D4EF" FromRole="Books" ToRole="ShoppingCartItems" />
           <NavigationProperty Name="Publisher" Relationship="Self.FK_Publisher" FromRole="Books" ToRole="Publishers" />
+          <NavigationProperty Name="BorrowCartItems" Relationship="LeelosBookstoreEFDBModel.FK__BorrowCar__BookI__619B8048" FromRole="Book" ToRole="BorrowCartItem" />
         </EntityType>
         <EntityType Name="Borrow">
           <Key>
@@ -490,6 +562,8 @@
           <Property Name="IsReturned" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="Book" Relationship="Self.FK__Borrows__BookId__37A5467C" FromRole="Borrows" ToRole="Books" />
           <NavigationProperty Name="User" Relationship="Self.FK__Borrows__UserId__36B12243" FromRole="Borrows" ToRole="Users" />
+          <Property Name="BorrowFee" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="LateFee" Type="Decimal" Precision="18" Scale="2" />
         </EntityType>
         <EntityType Name="OrderItem">
           <Key>
@@ -570,6 +644,7 @@
           <NavigationProperty Name="Role" Relationship="Self.FK__Users__RoleId__2C3393D0" FromRole="Users" ToRole="Roles" />
           <NavigationProperty Name="ShoppingCarts" Relationship="Self.FK__ShoppingC__UserI__44FF419A" FromRole="Users" ToRole="ShoppingCarts" />
           <NavigationProperty Name="Addresses" Relationship="LeelosBookstoreEFDBModel.FK__Address__UserId__534D60F1" FromRole="User" ToRole="Address" />
+          <NavigationProperty Name="BorrowCarts" Relationship="LeelosBookstoreEFDBModel.FK__BorrowCar__UserI__5DCAEF64" FromRole="User" ToRole="BorrowCart" />
         </EntityType>
         <Association Name="FK_Author">
           <End Role="Authors" Type="Self.Author" Multiplicity="1" />
@@ -762,6 +837,20 @@
             <End Role="User" EntitySet="Users" />
             <End Role="Address" EntitySet="Addresses" />
           </AssociationSet>
+          <EntitySet Name="BorrowCartItems" EntityType="LeelosBookstoreEFDBModel.BorrowCartItem" />
+          <EntitySet Name="BorrowCarts" EntityType="LeelosBookstoreEFDBModel.BorrowCart" />
+          <AssociationSet Name="FK__BorrowCar__BookI__619B8048" Association="LeelosBookstoreEFDBModel.FK__BorrowCar__BookI__619B8048">
+            <End Role="Book" EntitySet="Books" />
+            <End Role="BorrowCartItem" EntitySet="BorrowCartItems" />
+          </AssociationSet>
+          <AssociationSet Name="FK__BorrowCar__Borro__60A75C0F" Association="LeelosBookstoreEFDBModel.FK__BorrowCar__Borro__60A75C0F">
+            <End Role="BorrowCart" EntitySet="BorrowCarts" />
+            <End Role="BorrowCartItem" EntitySet="BorrowCartItems" />
+          </AssociationSet>
+          <AssociationSet Name="FK__BorrowCar__UserI__5DCAEF64" Association="LeelosBookstoreEFDBModel.FK__BorrowCar__UserI__5DCAEF64">
+            <End Role="User" EntitySet="Users" />
+            <End Role="BorrowCart" EntitySet="BorrowCarts" />
+          </AssociationSet>
           </EntityContainer>
         <EntityType Name="ShoppingCart_ShoppingCartItems">
           <Key>
@@ -825,6 +914,65 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="BorrowCartItem">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="BorrowCartId" Type="Int32" Nullable="false" />
+          <Property Name="BookId" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Book" Relationship="LeelosBookstoreEFDBModel.FK__BorrowCar__BookI__619B8048" FromRole="BorrowCartItem" ToRole="Book" />
+          <NavigationProperty Name="BorrowCart" Relationship="LeelosBookstoreEFDBModel.FK__BorrowCar__Borro__60A75C0F" FromRole="BorrowCartItem" ToRole="BorrowCart" />
+        </EntityType>
+        <EntityType Name="BorrowCart">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserId" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="BorrowCartItems" Relationship="LeelosBookstoreEFDBModel.FK__BorrowCar__Borro__60A75C0F" FromRole="BorrowCart" ToRole="BorrowCartItem" />
+          <NavigationProperty Name="User" Relationship="LeelosBookstoreEFDBModel.FK__BorrowCar__UserI__5DCAEF64" FromRole="BorrowCart" ToRole="User" />
+        </EntityType>
+        <Association Name="FK__BorrowCar__BookI__619B8048">
+          <End Type="LeelosBookstoreEFDBModel.Book" Role="Book" Multiplicity="1" />
+          <End Type="LeelosBookstoreEFDBModel.BorrowCartItem" Role="BorrowCartItem" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Book">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="BorrowCartItem">
+              <PropertyRef Name="BookId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__BorrowCar__Borro__60A75C0F">
+          <End Type="LeelosBookstoreEFDBModel.BorrowCart" Role="BorrowCart" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="LeelosBookstoreEFDBModel.BorrowCartItem" Role="BorrowCartItem" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="BorrowCart">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="BorrowCartItem">
+              <PropertyRef Name="BorrowCartId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__BorrowCar__UserI__5DCAEF64">
+          <End Type="LeelosBookstoreEFDBModel.User" Role="User" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="LeelosBookstoreEFDBModel.BorrowCart" Role="BorrowCart" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="BorrowCart">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -865,6 +1013,8 @@
           <EntitySetMapping Name="Borrows">
             <EntityTypeMapping TypeName="LeelosBookstoreEFDBModel.Borrow">
               <MappingFragment StoreEntitySet="Borrows">
+                <ScalarProperty Name="LateFee" ColumnName="LateFee" />
+                <ScalarProperty Name="BorrowFee" ColumnName="BorrowFee" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="UserId" ColumnName="UserId" />
                 <ScalarProperty Name="BookId" ColumnName="BookId" />
@@ -967,6 +1117,23 @@
                 <ScalarProperty Name="Address1" ColumnName="Address" />
                 <ScalarProperty Name="UserId" ColumnName="UserId" />
                 <ScalarProperty Name="AddressId" ColumnName="AddressId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="BorrowCartItems">
+            <EntityTypeMapping TypeName="LeelosBookstoreEFDBModel.BorrowCartItem">
+              <MappingFragment StoreEntitySet="BorrowCartItems">
+                <ScalarProperty Name="BookId" ColumnName="BookId" />
+                <ScalarProperty Name="BorrowCartId" ColumnName="BorrowCartId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="BorrowCarts">
+            <EntityTypeMapping TypeName="LeelosBookstoreEFDBModel.BorrowCart">
+              <MappingFragment StoreEntitySet="BorrowCarts">
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

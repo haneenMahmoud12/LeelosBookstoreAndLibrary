@@ -20,6 +20,7 @@ namespace DataLayer
             this.Borrows = new HashSet<Borrow>();
             this.OrderItems = new HashSet<OrderItem>();
             this.ShoppingCartItems = new HashSet<ShoppingCartItem>();
+            this.BorrowCartItems = new HashSet<BorrowCartItem>();
         }
     
         public int Id { get; set; }
@@ -44,5 +45,7 @@ namespace DataLayer
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ShoppingCartItem> ShoppingCartItems { get; set; }
         public virtual Publisher Publisher { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<BorrowCartItem> BorrowCartItems { get; set; }
     }
 }

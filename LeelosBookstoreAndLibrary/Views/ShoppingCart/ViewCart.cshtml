@@ -46,7 +46,7 @@ else
         <br />
         <strong>Total Price: <span id="total-price">@Model.Sum(i => i.Quantity * i.Price)</span></strong>
         <br />
-        <a href="@Url.Action("Shipping", "Shipping")" class="btn btn-success">Proceed to Shipping</a>
+        <a href="@Url.Action("ProceedToShipping", "ShoppingCart")" class="btn btn-success">Proceed to Shipping</a>
     </div>
 }
 

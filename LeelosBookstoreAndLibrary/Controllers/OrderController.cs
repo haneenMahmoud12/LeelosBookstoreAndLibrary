@@ -13,6 +13,14 @@ namespace LeelosBookstoreAndLibrary.Controllers
         // GET: Order
         public ActionResult Checkout()
         {
+            if (Session["Process"].Equals("Buy"))
+                return BuyCheckout();
+            else
+                return BorrowCheckout();
+        }
+
+        public ActionResult BuyCheckout()
+        {
             LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities();
 
             var userId = Session["UserId"] as int?;
@@ -82,11 +90,157 @@ namespace LeelosBookstoreAndLibrary.Controllers
             {
                 return RedirectToAction("Login");
             }
-            
+        }
+
+        public ActionResult BorrowCheckout()
+        {
+            LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities();
+
+            var userId = Session["UserId"] as int?;
+            if (userId.HasValue)
+            {
+                var user = db.Users.FirstOrDefault(u => u.Id == userId);
+                var address = db.Addresses.FirstOrDefault(a => a.UserId == userId);
+                var cart = db.BorrowCarts.FirstOrDefault(c => c.UserId == userId);
+                var cartItems = db.BorrowCartItems.Where(ci => ci.BorrowCartId == cart.Id).Select(ci => new Models.BorrowCartItem
+                {
+                    Id = ci.Id,
+                    BorrowCartId = ci.Id,
+                    BookId = ci.BookId,
+                    BorrowCart = new Models.BorrowCart
+                    {
+                        Id = cart.Id,
+                        UserId = cart.UserId
+                    },
+                    Book = new Models.Book
+                    {
+                        Id = ci.BookId,
+                        Title = ci.Book.Title,
+                        Price = (float)ci.Book.Price
+                    }
+                }).ToList();
+
+                var userModel = new Models.User
+                {
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Email = user.Email
+                };
+
+                var shippingInfo = new ShippingInfo
+                {
+                    Address = address.Address1,
+                    City = address.City,
+                    Governorate = address.Governorate,
+                    ZipCode = address.ZipCode,
+                    Country = address.Country,
+                    PhoneNumber = address.PhoneNumber
+                };
+
+                decimal totalPrice = 0;
+                foreach (var item in cartItems)
+                {
+                    decimal borrowPrice = (decimal)(item.Book.Price * 0.25);
+                    totalPrice += borrowPrice;
+                }
+
+                var model = new BorrowCheckoutViewModel
+                {
+                    User = userModel,
+                    ShippingInfo = shippingInfo,
+                    cartItems = cartItems,
+                    TotalPrice = totalPrice,
+                    AddressId = address.AddressId,
+                    PaymentMethod = "Cash on Delivery"
+                };
+
+                return View(model);
+            }
+            else
+            {
+                return RedirectToAction("Login");
+            }
         }
 
         [HttpPost]
         public ActionResult ConfirmOrder(decimal price)
+        {
+            if (Session["Process"].Equals("Buy"))
+                return BuyOrder(price);
+            else
+                return BorrowOrder(price);
+        }
+
+        public ActionResult BorrowOrder(decimal price)
+        {
+            LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities();
+            var userId = Session["UserId"] as int?;
+            if (userId.HasValue)
+            {
+                DataLayer.Order newOrder = new DataLayer.Order
+                {
+                    UserId = (int)userId,
+                    TotalPrice = price,
+                    OrderDate = DateTime.Now,
+                    Status = "Confirmed"
+                };
+                db.Orders.Add(newOrder);
+                db.SaveChanges(); // Save to get the cart's ID
+
+                var cart = db.BorrowCarts.FirstOrDefault(c => c.UserId == userId);
+                var cartItems = db.BorrowCartItems
+                    .Where(cs => cs.BorrowCartId == cart.Id)
+                   /* .Select(cs => new DataLayer.BorrowCartItem
+                    {
+                        Id = cs.Id,
+                        BorrowCartId = cs.BorrowCartId,
+                        BookId = cs.BookId
+                    })*/
+                    .ToList();
+
+                foreach (var item in cartItems)
+                {
+                    DataLayer.OrderItem orderItem = new DataLayer.OrderItem
+                    {
+                        OrderId = newOrder.Id,
+                        BookId = item.Book.Id,
+                        Price = (decimal)(item.Book.Price * 0.25),
+                        Quantity = 1
+                    };
+                    db.OrderItems.Add(orderItem);
+                    
+
+                    var borrow = new DataLayer.Borrow
+                    {
+                        UserId = userId.Value,
+                        BookId = item.BookId,
+                        BorrowDate = DateTime.Now,
+                        DueDate = DateTime.Now.AddDays(14), // 14-day borrow period
+                        IsReturned = false,
+                        BorrowFee = (decimal)(item.Book.Price * 0.25),
+                        LateFee = 0
+                    };
+
+                    db.Borrows.Add(borrow);
+
+                    // Reduce stock quantity
+                    var book = db.Books.FirstOrDefault(b => b.Id == item.BookId);
+                    book.StockQuantity -= 1;
+
+                    db.BorrowCartItems.Remove(item);
+
+                    db.SaveChanges();
+                }
+
+                return RedirectToAction("OrderSuccess");
+            }
+            else
+            {
+                return RedirectToAction("Checkout", "Order");
+            }
+        }
+
+        public ActionResult BuyOrder(decimal price)
         {
             LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities();
             var userId = Session["UserId"] as int?;
@@ -123,6 +277,10 @@ namespace LeelosBookstoreAndLibrary.Controllers
                     };
                     db.OrderItems.Add(orderItem);
                     db.ShoppingCartItems.Remove(item.ShoppingCartItem);
+
+                    var book = db.Books.FirstOrDefault(b => b.Id == item.Book.Id);
+                    book.StockQuantity -= 1;
+
                     db.SaveChanges();
                 }
 

@@ -24,8 +24,8 @@
         <dt>@Html.DisplayNameFor(model => model.Description)</dt>
         <dd>@Html.DisplayFor(model => model.Description)</dd>
 
-        <dt>@Html.DisplayNameFor(model => model.AuthorId)</dt>
-        <dd>@Html.DisplayFor(model => model.AuthorId)</dd>
+        <dt>Author</dt>
+        <dd>@Html.DisplayFor(model => model.Author.FirstName) @Html.DisplayFor(model => model.Author.LastName)</dd>
 
         <dt>@Html.DisplayNameFor(model => model.Genre)</dt>
         <dd>@Html.DisplayFor(model => model.Genre)</dd>
@@ -36,8 +36,8 @@
         <dt>@Html.DisplayNameFor(model => model.Rating)</dt>
         <dd>@Html.DisplayFor(model => model.Rating)</dd>
 
-        <dt>@Html.DisplayNameFor(model => model.PublisherId)</dt>
-        <dd>@Html.DisplayFor(model => model.PublisherId)</dd>
+        <dt>Publisher</dt>
+        <dd>@Html.DisplayFor(model => model.Publisher.Name)</dd>
 
         <dt>@Html.DisplayNameFor(model => model.DatePublished)</dt>
         <dd>@Html.DisplayFor(model => model.DatePublished)</dd>
@@ -45,13 +45,29 @@
         <dt>@Html.DisplayNameFor(model => model.NumberOfPages)</dt>
         <dd>@Html.DisplayFor(model => model.NumberOfPages)</dd>
 
-        <!-- Add to Cart Section -->
-        <form action="@Url.Action("AddToCart", "ShoppingCart")" method="post">
-            @Html.Hidden("bookId", Model.Id)
-            <label>Quantity: </label>
-            <input type="number" name="quantity" value="1" min="1" max="@Model.StockQuantity" />
-            <button type="submit" class="btn btn-primary">Add to Cart</button>
-        </form>
+
+        @if (Model.StockQuantity > 0) // Ensure the book is available
+        {
+            <!-- Add to Cart Section -->
+            <form action="@Url.Action("AddToCart", "ShoppingCart")" method="post">
+                @Html.Hidden("bookId", Model.Id)
+                <label>Quantity: </label>
+                <input type="number" name="quantity" value="1" min="1" max="@Model.StockQuantity" />
+                <button type="submit" class="btn btn-primary">Add to Cart</button>
+            </form>
+
+            <!-- Borrow Section -->
+            <form action="@Url.Action("AddToBorrowCart", "Borrow")" method="post">
+                @Html.Hidden("bookId", Model.Id)
+                <button type="submit" class="btn btn-primary">Borrow</button>
+            </form>
+
+
+        }
+        else
+        {
+            <span>Out of stock</span>
+        }
     </dl>
 </div>
 

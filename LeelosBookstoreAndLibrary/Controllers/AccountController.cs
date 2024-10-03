@@ -173,6 +173,23 @@ namespace LeelosBookstoreAndLibrary.Controllers
                 }).ToList();
             }
 
+            var borrowedBooks = db.Borrows.Where(bb => bb.UserId == user.Id).Select(bb => new Models.Borrow
+            {
+                Id = bb.Id,
+                UserId = user.Id,
+                BookId = bb.BookId,
+                BorrowDate = bb.BorrowDate,
+                DueDate = bb.DueDate,
+                ReturnDate = bb.ReturnDate,
+                IsReturned = bb.IsReturned,
+                borrowFee = bb.BorrowFee ?? 0,
+                LateFee = bb.LateFee ?? 0,
+                Book = new Models.Book
+                {
+                    Title = bb.Book.Title
+                }
+            }).ToList();
+
             var model = new UserViewModel
             {
                 Id = user.Id,
@@ -181,7 +198,8 @@ namespace LeelosBookstoreAndLibrary.Controllers
                 DateOfBirth = (System.DateTime)user.DateOfBirth,
                 Email = user.Email,
                 Address = addressModel,
-                Orders = orders
+                Orders = orders,
+                BorrowedBooks = borrowedBooks
             };
 
             return View(model);

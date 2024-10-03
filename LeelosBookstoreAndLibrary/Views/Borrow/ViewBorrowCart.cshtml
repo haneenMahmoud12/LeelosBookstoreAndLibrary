@@ -1,0 +1,40 @@
+﻿@model List<LeelosBookstoreAndLibrary.Models.BorrowCartItem>
+
+@{
+    ViewBag.Title = "Borrow Cart";
+}
+
+<h2>Your Borrow Cart</h2>
+
+@if (Model == null || !Model.Any())
+{
+    <p>Your borrow cart is empty. <a href="@Url.Action("Index", "Home")">Browse books</a> to add items to your cart.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Book Title</th>
+                <th>Borrow Fee</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+            <tr>
+                <td>@item.Book.Title</td>
+                <td>@((decimal)item.Book.Price * 0.25m)</td>
+                <td>
+                    <a href="@Url.Action("RemoveFromBorrowCart", new { id = item.Id })" class="btn btn-danger">Remove</a>
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+
+    <div>
+        <a href="@Url.Action("ProceedToShipping", "Borrow")" class="btn btn-success">Proceed to Shipping</a>
+    </div>
+}
