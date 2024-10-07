@@ -1,28 +1,18 @@
-﻿@model IEnumerable<LeelosBookstoreAndLibrary.Models.Book>
+﻿@model LeelosBookstoreAndLibrary.Models.BooksViewModel
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Books Index";
 }
 
-<h2>Index</h2>
-
-@if (!ViewData.ModelState.IsValid)
-{
-    <div class="alert alert-danger">
-        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-        {
-            <p>@error.ErrorMessage</p>
-        }
-    </div>
-}
-
+<h2>Books Index</h2>
 
 <!-- Search form -->
 <form method="get" action="@Url.Action("Index")">
-    <input type="text" name="searchQuery" placeholder="Search by title, author, or genre..." value="@Request.QueryString["searchQuery"]" />
+    <input type="text" name="searchQuery" placeholder="Search by title, author, or genre..." value="@Model.SearchQuery" />
     <input type="submit" value="Search" />
 </form>
 
+<!-- Create book link for admin -->
 @if (!string.IsNullOrEmpty(Session["UserId"]?.ToString()) && (int)Session["UserRole"] == 2)
 {
     <p>
@@ -31,33 +21,47 @@
 }
 
 <table class="table">
-    <tr>
-        <th>@Html.DisplayNameFor(model => model.Title)</th>
-        <th>Author</th>
-        <th>@Html.DisplayNameFor(model => model.Genre)</th>
-        <th>@Html.DisplayNameFor(model => model.Price)</th>
-        <th></th>
-    </tr>
-
-    @foreach (var item in Model)
-    {
+    <thead>
         <tr>
-            <td>@Html.DisplayFor(modelItem => item.Title)</td>
-            <td>@Html.DisplayFor(modelItem => item.Author.FirstName) @Html.DisplayFor(modelItem => item.Author.LastName)</td>
-            <td>@Html.DisplayFor(modelItem => item.Genre)</td>
-            <td>@item.Price.ToString("F2")</td>
-            <td>
-                @Html.ActionLink("Details", "BookDetails", new { id = item.Id })
-
-                <br />
-
-                @if (!string.IsNullOrEmpty(Session["UserId"]?.ToString()) && (int)Session["UserRole"] == 2)
-                {
-                    @Html.ActionLink("Edit", "EditBook", new { id = item.Id })
-                    <br />
-                    @Html.ActionLink("Delete", "Delete", new { id = item.Id })
-                }
-            </td>
+            <th>@Html.DisplayNameFor(model => model.Books.First().Title)</th>
+            <th>Author</th>
+            <th>@Html.DisplayNameFor(model => model.Books.First().Genre)</th>
+            <th>@Html.DisplayNameFor(model => model.Books.First().Price)</th>
+            <th></th>
         </tr>
-    }
+    </thead>
+    <tbody>
+        @foreach (var book in Model.Books)
+        {
+            <tr>
+                <td>@book.Title</td>
+                <td>@book.Author.FirstName @book.Author.LastName</td>
+                <td>@book.Genre</td>
+                <td>@book.Price.ToString("F2")</td>
+                <td>
+                    @Html.ActionLink("Details", "BookDetails", new { id = book.Id })
+                    @if (!string.IsNullOrEmpty(Session["UserId"]?.ToString()) && (int)Session["UserRole"] == 2)
+                    {
+                        <br />
+                        @Html.ActionLink("Edit", "EditBook", new { id = book.Id })
+                        <br />
+                        @Html.ActionLink("Delete", "Delete", new { id = book.Id })
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
 </table>
+
+<!-- Pagination -->
+@if (Model.TotalBooksCount > Model.PageSize)
+{
+    <ul class="pagination">
+        @for (int i = 1; i <= Math.Ceiling((double)Model.TotalBooksCount / Model.PageSize); i++)
+        {
+            <li class="@(i == Model.CurrentPage ? "active" : "")">
+                <a href="@Url.Action("Index", new { page = i, pageSize = Model.PageSize, searchQuery = Model.SearchQuery })">@i</a>
+            </li>
+        }
+    </ul>
+}

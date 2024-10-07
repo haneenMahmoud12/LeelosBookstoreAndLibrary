@@ -40,6 +40,10 @@
     </dl>
     <hr />
 
+    <p>
+        @Html.ActionLink("Edit Account", "EditAccount", new { id = Model.Id })
+    </p>
+
     <h3>Your Orders</h3>
 
     @foreach (var order in Model.Orders)
@@ -76,7 +80,7 @@
         <hr />
     }
 
-   
+
     @if (Model.Orders.Count > 0)
     {
         <div>

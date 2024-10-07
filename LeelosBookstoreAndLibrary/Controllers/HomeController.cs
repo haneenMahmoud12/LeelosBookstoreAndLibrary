@@ -11,60 +11,61 @@ namespace LeelosBookstoreAndLibrary.Controllers
 {
     public class HomeController : Controller
     {
-        public ActionResult Index(String searchQuery)
+        public ActionResult Index(string searchQuery, int page = 1, int pageSize = 4)
         {
-            List<Models.Book> booksList = new List<Models.Book>();
             LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities();
-            var books = db.Books.Include("Author").Include("Publisher").ToList();
 
-            // If there's a search query, filter the books by title, author, or genre
-            if (!String.IsNullOrEmpty(searchQuery))
+            // Filter by search query IF provided
+            var booksQuery = db.Books.Include("Author").Include("Publisher").AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchQuery))
             {
                 searchQuery = searchQuery.ToLower();
-                books = books.Where(b => b.Title.ToLower().Contains(searchQuery) ||
-                                         b.Genre.ToLower().Contains(searchQuery) ||
-                                         b.Author.FirstName.ToLower().Contains(searchQuery) ||
-                                         b.Author.LastName.ToLower().Contains(searchQuery)).ToList(); // Assuming you have a navigation property 'Author'
+                booksQuery = booksQuery.Where(b => b.Title.ToLower().Contains(searchQuery) ||
+                                                   b.Genre.ToLower().Contains(searchQuery) ||
+                                                   b.Author.FirstName.ToLower().Contains(searchQuery) ||
+                                                   b.Author.LastName.ToLower().Contains(searchQuery));
             }
 
-            foreach (var book in books)
+            var totalBooksCount = booksQuery.Count();
+
+            var books = booksQuery.OrderBy(b => b.Title)
+                                  .Skip((page - 1) * pageSize)
+                                  .Take(pageSize)
+                                  .Select(book => new Models.Book
+                                  {
+                                      Id = book.Id,
+                                      Title = book.Title,
+                                      Description = book.Description,
+                                      StockQuantity = book.StockQuantity,
+                                      AuthorId = book.AuthorId,
+                                      Genre = book.Genre,
+                                      Price = (float)Math.Round(book.Price, 2),
+                                      Rating = book.Rating,
+                                      PublisherId = book.PublisherId,
+                                      DatePublished = book.DatePublished,
+                                      NumberOfPages = book.NumberOfPages,
+                                      ImageData = book.ImageData,
+                                      ImageMimeType = book.ImageMimeType,
+                                      Author = new Models.Author
+                                      {
+                                          FirstName = book.Author.FirstName,
+                                          LastName = book.Author.LastName
+                                      }
+                                  }).ToList();
+
+            var model = new Models.BooksViewModel
             {
-                Models.Book bookModel = new Models.Book
-                {
-                    Id = book.Id,
-                    Title = book.Title,
-                    Description = book.Description,
-                    StockQuantity = book.StockQuantity,
-                    AuthorId = book.AuthorId,
-                    Genre = book.Genre,
-                    Price = (float)Math.Round(book.Price, 2),
-                    Rating = book.Rating,
-                    PublisherId = book.PublisherId,
-                    DatePublished = book.DatePublished,
-                    NumberOfPages = book.NumberOfPages,
-                    ImageData = book.ImageData,
-                    ImageMimeType = book.ImageMimeType,
-                    Author = new Models.Author
-                    {
-                        FirstName = book.Author.FirstName,
-                        LastName = book.Author.LastName
-                    }
-                };
+                Books = books,
+                CurrentPage = page,
+                PageSize = pageSize,
+                TotalBooksCount = totalBooksCount,
+                SearchQuery = searchQuery
+            };
 
-                booksList.Add(bookModel);
-
-            }
-
-            /*var booksList = new List<Models.Book>();
-            foreach (var book in books)
-            {
-                var bookModel = MapperInstance.Mapper.Map<DataLayer.Book,Models.Book>(book);
-                booksList.Add(bookModel);
-            }*/
-            /*
-                            var booksList = MapperInstance.Mapper.Map<List<Models.Book>>(books);*/
-            return View(booksList);
+            return View(model);
         }
+
 
         public ActionResult AddBook()
         {

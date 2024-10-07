@@ -147,6 +147,7 @@
     </Compile>
     <Compile Include="Models\Author.cs" />
     <Compile Include="Models\Book.cs" />
+    <Compile Include="Models\BooksViewModel.cs" />
     <Compile Include="Models\Borrow.cs" />
     <Compile Include="Models\BorrowCart.cs" />
     <Compile Include="Models\BorrowCartItem.cs" />
