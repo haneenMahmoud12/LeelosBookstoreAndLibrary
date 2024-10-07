@@ -60,7 +60,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
                     Book = new Models.Book
                     {
                         Title = b.Book.Title,
-                        Price = (float)b.Book.Price
+                        Price = (float)Math.Round(b.Book.Price,2)
                     }
                 }).ToList();
                 return View(borrowCartItems);
@@ -116,7 +116,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
                 BorrowDate = DateTime.Now,
                 DueDate = DateTime.Now.AddDays(14), // 14-day borrow period
                 IsReturned = false,
-                BorrowFee = (decimal?)(book.Price * 0.25),
+                BorrowFee = (decimal?)Math.Round((book.Price * 0.25),2),
                 LateFee = 0,
                 Book = book
             };
@@ -151,8 +151,8 @@ namespace LeelosBookstoreAndLibrary.Controllers
                     ReturnDate = b.ReturnDate,
                     DueDate = b.DueDate,
                     IsReturned = b.IsReturned,
-                    borrowFee = b.BorrowFee ?? 0,
-                    LateFee = b.LateFee ?? 0,
+                    borrowFee = Math.Round(b.BorrowFee ?? 0,2),
+                    LateFee = Math.Round(b.LateFee ?? 0,2),
                     Book = new Models.Book
                     {
                         Title = b.Book.Title
@@ -181,7 +181,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
             var daysLate = (DateTime.Now - borrow.DueDate).Days;
             if (daysLate > 0)
             {
-                borrow.LateFee = daysLate * 0.25m; // Example late fee of $0.25 per day
+                borrow.LateFee = Math.Round(daysLate * 0.25m); // Example late fee of $0.25 per day
             }
 
             // Mark the book as returned
@@ -206,8 +206,8 @@ namespace LeelosBookstoreAndLibrary.Controllers
                 ReturnDate = b.ReturnDate,
                 DueDate = b.DueDate,
                 IsReturned = b.IsReturned,
-                borrowFee = b.BorrowFee ?? 0,
-                LateFee = b.LateFee ?? 0,
+                borrowFee = Math.Round(b.BorrowFee ?? 0,2),
+                LateFee = Math.Round(b.LateFee ?? 0,2),
                 Book = new Models.Book
                 {
                     Title = b.Book.Title

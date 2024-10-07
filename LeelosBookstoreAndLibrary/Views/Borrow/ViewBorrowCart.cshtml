@@ -6,6 +6,17 @@
 
 <h2>Your Borrow Cart</h2>
 
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <p>@error.ErrorMessage</p>
+        }
+    </div>
+}
+
+
 @if (Model == null || !Model.Any())
 {
     <p>Your borrow cart is empty. <a href="@Url.Action("Index", "Home")">Browse books</a> to add items to your cart.</p>
@@ -23,13 +34,13 @@ else
         <tbody>
             @foreach (var item in Model)
             {
-            <tr>
-                <td>@item.Book.Title</td>
-                <td>@((decimal)item.Book.Price * 0.25m)</td>
-                <td>
-                    <a href="@Url.Action("RemoveFromBorrowCart", new { id = item.Id })" class="btn btn-danger">Remove</a>
-                </td>
-            </tr>
+                <tr>
+                    <td>@item.Book.Title</td>
+                    <td>@((decimal)item.Book.Price * 0.25m)</td>
+                    <td>
+                        <a href="@Url.Action("RemoveFromBorrowCart", new { id = item.Id })" class="btn btn-danger">Remove</a>
+                    </td>
+                </tr>
             }
         </tbody>
     </table>

@@ -18,6 +18,14 @@ namespace LeelosBookstoreAndLibrary.Models
         // List of orders
         public List<Order> Orders { get; set; }
         public IEnumerable<Borrow> BorrowedBooks { get; set; }
+
+        // Paging Properties
+        public int OrderPage { get; set; }
+        public int OrderPageSize { get; set; }
+        public int BorrowPage { get; set; }
+        public int BorrowPageSize { get; set; }
+        public int TotalOrders { get; set; }
+        public int TotalBorrowedBooks { get; set; }
     }
 
 }

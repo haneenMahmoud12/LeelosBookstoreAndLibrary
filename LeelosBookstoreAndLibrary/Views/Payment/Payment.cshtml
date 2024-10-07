@@ -4,6 +4,17 @@
 
 <h2>Payment</h2>
 
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <p>@error.ErrorMessage</p>
+        }
+    </div>
+}
+
+
 @using (Html.BeginForm("ProcessPayment", "Payment", FormMethod.Post))
 {
     <div class="form-group">

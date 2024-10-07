@@ -60,7 +60,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
                     Id = item.ShoppingCartItem.Id,
                     BookId = item.ShoppingCartItem.BookId,
                     Quantity = item.ShoppingCartItem.Quantity,
-                    Price = (decimal)item.ShoppingCartItem.Price * item.ShoppingCartItem.Quantity,
+                    Price = Math.Round((decimal)(item.ShoppingCartItem.Price * item.ShoppingCartItem.Quantity),2),
                     Book = new LeelosBookstoreAndLibrary.Models.Book
                     {
                         Title = item.Book.Title,
@@ -79,7 +79,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
                     User = userModel,
                     ShippingInfo = shippingInfo,
                     cartItems = shoppingCartItemsModel,
-                    TotalPrice = totalPrice,
+                    TotalPrice = Math.Round(totalPrice,2),
                     AddressId = address.AddressId,
                     PaymentMethod = "Cash on Delivery"
                 };
@@ -116,7 +116,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
                     {
                         Id = ci.BookId,
                         Title = ci.Book.Title,
-                        Price = (float)ci.Book.Price
+                        Price = (float)Math.Round(ci.Book.Price,2)
                     }
                 }).ToList();
 
@@ -180,7 +180,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
                 DataLayer.Order newOrder = new DataLayer.Order
                 {
                     UserId = (int)userId,
-                    TotalPrice = price,
+                    TotalPrice = Math.Round(price,2),
                     OrderDate = DateTime.Now,
                     Status = "Confirmed"
                 };
@@ -204,7 +204,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
                     {
                         OrderId = newOrder.Id,
                         BookId = item.Book.Id,
-                        Price = (decimal)(item.Book.Price * 0.25),
+                        Price = Math.Round((decimal)(item.Book.Price * 0.25), 2),
                         Quantity = 1
                     };
                     db.OrderItems.Add(orderItem);
@@ -249,7 +249,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
                 DataLayer.Order newOrder = new DataLayer.Order
                 {
                     UserId = (int)userId,
-                    TotalPrice = price,
+                    TotalPrice = Math.Round(price,2),
                     OrderDate = DateTime.Now,
                     Status = "Confirmed"
                 };
@@ -272,7 +272,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
                     {
                         OrderId = newOrder.Id,
                         BookId = item.Book.Id,
-                        Price = (decimal)item.ShoppingCartItem.Price,
+                        Price = Math.Round((decimal)item.ShoppingCartItem.Price,2),
                         Quantity = item.ShoppingCartItem.Quantity
                     };
                     db.OrderItems.Add(orderItem);

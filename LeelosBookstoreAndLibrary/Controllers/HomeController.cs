@@ -1,4 +1,5 @@
-﻿using DataLayer;
+﻿using AutoMapper;
+using DataLayer;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity.Infrastructure;
@@ -14,7 +15,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
         {
             List<Models.Book> booksList = new List<Models.Book>();
             LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities();
-            var books = db.Books.ToList();
+            var books = db.Books.Include("Author").Include("Publisher").ToList();
 
             // If there's a search query, filter the books by title, author, or genre
             if (!String.IsNullOrEmpty(searchQuery))
@@ -36,7 +37,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
                     StockQuantity = book.StockQuantity,
                     AuthorId = book.AuthorId,
                     Genre = book.Genre,
-                    Price = (float)book.Price,
+                    Price = (float)Math.Round(book.Price, 2),
                     Rating = book.Rating,
                     PublisherId = book.PublisherId,
                     DatePublished = book.DatePublished,
@@ -53,6 +54,15 @@ namespace LeelosBookstoreAndLibrary.Controllers
                 booksList.Add(bookModel);
 
             }
+
+            /*var booksList = new List<Models.Book>();
+            foreach (var book in books)
+            {
+                var bookModel = MapperInstance.Mapper.Map<DataLayer.Book,Models.Book>(book);
+                booksList.Add(bookModel);
+            }*/
+            /*
+                            var booksList = MapperInstance.Mapper.Map<List<Models.Book>>(books);*/
             return View(booksList);
         }
 
@@ -73,7 +83,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
                     Description = bookModel.Description,
                     AuthorId = bookModel.AuthorId,
                     Genre = bookModel.Genre,
-                    Price = bookModel.Price,
+                    Price = Math.Round(bookModel.Price,2),
                     StockQuantity = bookModel.StockQuantity,
                     Rating = bookModel.Rating,
                     PublisherId = bookModel.PublisherId,
@@ -107,7 +117,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
                         StockQuantity = book.StockQuantity,
                         AuthorId = book.AuthorId,
                         Genre = book.Genre,
-                        Price = (float)book.Price,
+                        Price = (float) Math.Round(book.Price,2),
                         Rating = book.Rating,
                         PublisherId = book.PublisherId,
                         DatePublished = book.DatePublished,
@@ -127,21 +137,18 @@ namespace LeelosBookstoreAndLibrary.Controllers
             {
                 try
                 {
-                    // Fetch the book from the database
                     Book book = db.Books.FirstOrDefault(x => x.Id == bookModel.Id);
 
-                    // Check if the book still exists
                     if (book == null)
                     {
-                        return HttpNotFound(); // Return a 404 if the book is no longer in the database
+                        return HttpNotFound();
                     }
 
-                    // Update the book's properties
                     book.Title = bookModel.Title;
                     book.Description = bookModel.Description;
                     book.AuthorId = bookModel.AuthorId;
                     book.Genre = bookModel.Genre;
-                    book.Price = bookModel.Price;
+                    book.Price = Math.Round(bookModel.Price,2);
                     book.StockQuantity = bookModel.StockQuantity;
                     book.Rating = bookModel.Rating;
                     book.PublisherId = bookModel.PublisherId;
@@ -150,43 +157,17 @@ namespace LeelosBookstoreAndLibrary.Controllers
                     book.ImageData = bookModel.ImageData;
                     book.ImageMimeType = bookModel.ImageMimeType;
 
-                    // Save the changes
                     db.Entry(book).State = System.Data.Entity.EntityState.Modified;
                     db.SaveChanges();
 
                     return RedirectToAction("Index");
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception)
                 {
                     ModelState.AddModelError("", "The book you are trying to edit was modified or deleted by another user. Please reload and try again.");
-                    return View(bookModel); // Return the view to allow the user to attempt the edit again
+                    return View(bookModel);
                 }
-               /* Book book = db.Books.FirstOrDefault(x => x.Id == bookModel.Id);
-                if(book != null)
-                {
-                    book = new Book
-                    {
-                        Title = bookModel.Title,
-                        Description = bookModel.Description,
-                        AuthorId = bookModel.AuthorId,
-                        Genre = bookModel.Genre,
-                        Price = bookModel.Price,
-                        StockQuantity = bookModel.StockQuantity,
-                        Rating = bookModel.Rating,
-                        PublisherId = bookModel.PublisherId,
-                        DatePublished = bookModel.DatePublished,
-                        NumberOfPages = bookModel.NumberOfPages,
-                        ImageData = bookModel.ImageData,
-                        ImageMimeType = bookModel.ImageMimeType
-                    };
-
-                    db.Entry(book).State = System.Data.Entity.EntityState.Modified;
-                    db.SaveChanges();
-                }
-
-                return RedirectToAction("Index");*/
             }
-            //return View(bookModel);
         }
         
         public ActionResult BookDetails(int id)
@@ -197,7 +178,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
                 Book book = db.Books.FirstOrDefault(x => x.Id == id);
                 if (book != null)
                 {
-                    bookModel = new Models.Book
+                    /*bookModel = new Models.Book
                     {
                         Id = book.Id,
                         Title = book.Title,
@@ -221,7 +202,8 @@ namespace LeelosBookstoreAndLibrary.Controllers
                         {
                             Name = book.Publisher.Name
                         }
-                    };
+                    };*/
+                    bookModel = MapperInstance.Mapper.Map<DataLayer.Book, Models.Book>(book);
                 }
             }
             return View(bookModel);

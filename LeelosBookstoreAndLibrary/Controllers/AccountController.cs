@@ -1,6 +1,7 @@
 ﻿// Controllers/AuthController.cs
 using DataLayer;
 using LeelosBookstoreAndLibrary.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -21,35 +22,48 @@ namespace LeelosBookstoreAndLibrary.Controllers
         [HttpPost]
         public ActionResult Register(Models.User user)
         {
-            LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities();
-            if (ModelState.IsValid)
+            using (LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities())
             {
-                if (db.Users.Any(u => u.Email == user.Email))
+                try
                 {
-                    ModelState.AddModelError("Email", "This email is already registered.");
-                    return View(user);
+                    if (ModelState.IsValid)
+                    {
+                        if (db.Users.Any(u => u.Email == user.Email))
+                        {
+                            ModelState.AddModelError("Email", "This email is already registered.");
+                            return View(user);
+                        }
+
+                        var userToAdd = MapperInstance.Mapper.Map<Models.User, DataLayer.User>(user);
+                        db.Users.Add(userToAdd);
+                        db.SaveChanges();
+
+                        Session["UserId"] = userToAdd.Id;
+                        Session["UserRole"] = userToAdd.RoleId;
+                        Session["UserName"] = $"{userToAdd.FirstName} {userToAdd.LastName}";
+
+                        return RedirectToAction("Login");
+                    }
                 }
-
-                DataLayer.User userToAdd = new DataLayer.User
+                catch (Exception e)
                 {
-                    Email = user.Email,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Password = user.Password,
-                    DateOfBirth = user.DateOfBirth,
-                    RoleId = 1
-                };
-                db.Users.Add(userToAdd);
-                db.SaveChanges();
-
-                Session["UserId"] = userToAdd.Id;
-                Session["UserRole"] = userToAdd.RoleId;
-                Session["UserName"] = $"{userToAdd.FirstName} {userToAdd.LastName}";
-
-                return RedirectToAction("Login");
+                    ModelState.AddModelError("", e.Message);
+                }
             }
-            return View(user);
+
+            return View(user); // Ensure this returns the user object with validation messages
         }
+
+
+       /* DataLayer.User userToAdd = new DataLayer.User
+        {
+            Email = user.Email,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Password = user.Password,
+            DateOfBirth = user.DateOfBirth,
+            RoleId = 1
+        };*/
 
         // GET: Account/Login
         public ActionResult Login()
@@ -62,17 +76,36 @@ namespace LeelosBookstoreAndLibrary.Controllers
         public ActionResult Login(Models.User user)
         {
             LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities();
-            var existingUser = db.Users.FirstOrDefault(u => u.Email == user.Email && u.Password == user.Password);
-            if (existingUser != null)
+            try
             {
-                Session["UserId"] = existingUser.Id;
-                Session["UserRole"] = existingUser.RoleId;
-                Session["UserName"] = $"{existingUser.FirstName} {existingUser.LastName}";
-                return RedirectToAction("Index", "Home");
+                var existingUser = db.Users.FirstOrDefault(u => u.Email == user.Email);
+
+                if (existingUser == null)
+                {
+                    // Email not found
+                    ModelState.AddModelError("Email", "No such email found.");
+                }
+                else if (existingUser.Password != user.Password)
+                {
+                    // Incorrect password
+                    ModelState.AddModelError("Password", "Wrong password.");
+                }
+                else
+                {
+                    // Successful login
+                    Session["UserId"] = existingUser.Id;
+                    Session["UserRole"] = existingUser.RoleId;
+                    Session["UserName"] = $"{existingUser.FirstName} {existingUser.LastName}";
+                    return RedirectToAction("Index", "Home");
+                }
             }
-            ModelState.AddModelError("", "Invalid login attempt.");
+            catch (Exception e)
+            {
+                ModelState.AddModelError("", e.Message);
+            }
             return View(user);
         }
+
 
         // GET: Account/Logout
         public ActionResult Logout()
@@ -82,7 +115,8 @@ namespace LeelosBookstoreAndLibrary.Controllers
         }
 
         // GET: Account/ViewAccount
-        public ActionResult ViewAccount()
+
+        public ActionResult ViewAccount(int orderPage = 1, int orderPageSize = 2, int borrowPage = 1, int borrowPageSize = 4)
         {
             LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities();
             var userId = Session["UserId"] as int?;
@@ -99,96 +133,18 @@ namespace LeelosBookstoreAndLibrary.Controllers
                 return HttpNotFound();
             }
 
-            var userModel = new Models.User
-            {
-                Id = user.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email,
-                DateOfBirth = (System.DateTime)user.DateOfBirth
-            };
+            var userModel = UserInfo(user);
 
             var address = db.Addresses.FirstOrDefault(a => a.UserId == user.Id);
-            ShippingInfo addressModel = new ShippingInfo
-            {
-                Address = address.Address1,
-                City = address.City,
-                Governorate = address.Governorate,
-                Country = address.Country,
-                ZipCode = address.ZipCode,
-                PhoneNumber = address.PhoneNumber
-            };
+            ShippingInfo addressModel = UserAddress(address);
 
-            var orders = db.Orders.Where(order => order.UserId == userId).Select(o => new Models.Order {
-                Id = o.Id,
-                UserId = o.UserId,
-                OrderDate = o.OrderDate,
-                Status = o.Status,
-                TotalPrice = o.TotalPrice,
-                OrderItems = db.OrderItems.Where(oi => oi.OrderId == o.Id).Select(oi => new Models.OrderItem
-                {
-                    Book = new Models.Book
-                    {
-                        Id = oi.Book.Id,
-                        Title = oi.Book.Title,
-                        AuthorId = oi.Book.AuthorId,
-                        PublisherId = oi.Book.PublisherId,
-                        Price = (float)oi.Book.Price,
-                        StockQuantity = oi.Book.StockQuantity,
-                        Genre = oi.Book.Genre,
-                        DatePublished = oi.Book.DatePublished,
-                        Description = oi.Book.Description,
-                        Rating = oi.Book.Rating,
-                        NumberOfPages = oi.Book.NumberOfPages,
-                        ImageData = oi.Book.ImageData,
-                        ImageMimeType = oi.Book.ImageMimeType
-                    },
-                    Quantity = oi.Quantity,
-                    Price = oi.Price
-                }).ToList()
-        }).ToList();
+            // Paging for Orders
+            var totalOrdersCount = db.Orders.Count(order => order.UserId == userId);
+            var ordersQuery = UserOrders(totalOrdersCount,orderPage, orderPageSize, (int)userId);
 
-            foreach(var order in orders)
-            {
-                var orderItem = db.OrderItems.Where(oi => oi.OrderId == order.Id).Select(oi => new Models.OrderItem
-                {
-                    Book = new Models.Book
-                    {
-                        Id = oi.Book.Id,
-                        Title = oi.Book.Title,
-                        AuthorId = oi.Book.AuthorId,
-                        PublisherId = oi.Book.PublisherId,
-                        Price = (float)oi.Book.Price,
-                        StockQuantity = oi.Book.StockQuantity,
-                        Genre = oi.Book.Genre,
-                        DatePublished = oi.Book.DatePublished,
-                        Description = oi.Book.Description,
-                        Rating = oi.Book.Rating,
-                        NumberOfPages = oi.Book.NumberOfPages,
-                        ImageData = oi.Book.ImageData,
-                        ImageMimeType = oi.Book.ImageMimeType
-                    },
-                    Quantity = oi.Quantity,
-                    Price = oi.Price
-                }).ToList();
-            }
-
-            var borrowedBooks = db.Borrows.Where(bb => bb.UserId == user.Id).Select(bb => new Models.Borrow
-            {
-                Id = bb.Id,
-                UserId = user.Id,
-                BookId = bb.BookId,
-                BorrowDate = bb.BorrowDate,
-                DueDate = bb.DueDate,
-                ReturnDate = bb.ReturnDate,
-                IsReturned = bb.IsReturned,
-                borrowFee = bb.BorrowFee ?? 0,
-                LateFee = bb.LateFee ?? 0,
-                Book = new Models.Book
-                {
-                    Title = bb.Book.Title
-                }
-            }).ToList();
+            // Paging for Borrowed Books
+            var totalBorrowedBooksCount = db.Borrows.Count(bb => bb.UserId == user.Id);
+            var borrowedBooksQuery = UserBorrows(totalBorrowedBooksCount, borrowPage, borrowPageSize, (int)userId);
 
             var model = new UserViewModel
             {
@@ -198,13 +154,237 @@ namespace LeelosBookstoreAndLibrary.Controllers
                 DateOfBirth = (System.DateTime)user.DateOfBirth,
                 Email = user.Email,
                 Address = addressModel,
-                Orders = orders,
-                BorrowedBooks = borrowedBooks
+                Orders = ordersQuery,
+                BorrowedBooks = borrowedBooksQuery,
+                OrderPage = orderPage,
+                OrderPageSize = orderPageSize,
+                BorrowPage = borrowPage,
+                BorrowPageSize = borrowPageSize,
+                TotalOrders = totalOrdersCount,  // Total count without paging
+                TotalBorrowedBooks = totalBorrowedBooksCount  // Total count without paging
             };
 
             return View(model);
         }
 
+        public Models.User UserInfo(DataLayer.User user)
+        {
+            var userModel = new Models.User
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                DateOfBirth = (System.DateTime)user.DateOfBirth
+            };
+            return userModel;
+        }
+
+        public Models.ShippingInfo UserAddress(DataLayer.Address address)
+        {
+            ShippingInfo addressModel = new ShippingInfo
+            {
+                Address = address.Address1,
+                City = address.City,
+                Governorate = address.Governorate,
+                Country = address.Country,
+                ZipCode = address.ZipCode,
+                PhoneNumber = address.PhoneNumber
+            };
+            return addressModel;
+        }
+
+        public List<Models.Order> UserOrders(int totalOrdersCount, int orderPage, int orderPageSize, int userId)
+        {
+            LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities();
+
+            // Paging for Orders
+            var ordersQuery = db.Orders.Where(order => order.UserId == userId)
+                                        .OrderBy(o => o.OrderDate)
+                                        .Skip((orderPage - 1) * orderPageSize)
+                                        .Take(orderPageSize)
+                                        .Select(o => new Models.Order
+                                        {
+                                            Id = o.Id,
+                                            UserId = o.UserId,
+                                            OrderDate = o.OrderDate,
+                                            Status = o.Status,
+                                            TotalPrice = o.TotalPrice,
+                                            OrderItems = db.OrderItems.Where(oi => oi.OrderId == o.Id)
+                                                .Select(oi => new Models.OrderItem
+                                                {
+                                                    Book = new Models.Book
+                                                    {
+                                                        Id = oi.Book.Id,
+                                                        Title = oi.Book.Title,
+                                                        AuthorId = oi.Book.AuthorId,
+                                                        PublisherId = oi.Book.PublisherId,
+                                                        Price = (float)oi.Book.Price,
+                                                        StockQuantity = oi.Book.StockQuantity,
+                                                        Genre = oi.Book.Genre,
+                                                        DatePublished = oi.Book.DatePublished,
+                                                        Description = oi.Book.Description,
+                                                        Rating = oi.Book.Rating,
+                                                        NumberOfPages = oi.Book.NumberOfPages,
+                                                        ImageData = oi.Book.ImageData,
+                                                        ImageMimeType = oi.Book.ImageMimeType
+                                                    },
+                                                    Quantity = oi.Quantity,
+                                                    Price = oi.Price
+                                                }).ToList()
+                                        }).ToList();
+            return ordersQuery;
+        }
+
+        public List<Models.Borrow> UserBorrows(int totalBorrowedBooksCount, int borrowPage, int borrowPageSize, int userId)
+        {
+            LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities();
+            var borrowedBooksQuery = db.Borrows.Where(bb => bb.UserId == userId)
+                                               .OrderBy(bb => bb.BorrowDate)
+                                               .Skip((borrowPage - 1) * borrowPageSize)
+                                               .Take(borrowPageSize)
+                                               .Select(bb => new Models.Borrow
+                                               {
+                                                   Id = bb.Id,
+                                                   UserId = userId,
+                                                   BookId = bb.BookId,
+                                                   BorrowDate = bb.BorrowDate,
+                                                   DueDate = bb.DueDate,
+                                                   ReturnDate = bb.ReturnDate,
+                                                   IsReturned = bb.IsReturned,
+                                                   borrowFee = bb.BorrowFee ?? 0,
+                                                   LateFee = bb.LateFee ?? 0,
+                                                   Book = new Models.Book
+                                                   {
+                                                       Title = bb.Book.Title
+                                                   }
+                                               }).ToList();
+            return borrowedBooksQuery;
+        }
+
+        /*        public ActionResult ViewAccount()
+                {
+                    LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities();
+                    var userId = Session["UserId"] as int?;
+
+                    if (!userId.HasValue)
+                    {
+                        return RedirectToAction("Login");
+                    }
+
+                    var user = db.Users.FirstOrDefault(u => u.Id == userId);
+
+                    if (user == null)
+                    {
+                        return HttpNotFound();
+                    }
+
+                    var userModel = new Models.User
+                    {
+                        Id = user.Id,
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        Email = user.Email,
+                        DateOfBirth = (System.DateTime)user.DateOfBirth
+                    };
+
+                    var address = db.Addresses.FirstOrDefault(a => a.UserId == user.Id);
+                    ShippingInfo addressModel = new ShippingInfo
+                    {
+                        Address = address.Address1,
+                        City = address.City,
+                        Governorate = address.Governorate,
+                        Country = address.Country,
+                        ZipCode = address.ZipCode,
+                        PhoneNumber = address.PhoneNumber
+                    };
+
+                    var orders = db.Orders.Where(order => order.UserId == userId).Select(o => new Models.Order {
+                        Id = o.Id,
+                        UserId = o.UserId,
+                        OrderDate = o.OrderDate,
+                        Status = o.Status,
+                        TotalPrice = o.TotalPrice,
+                        OrderItems = db.OrderItems.Where(oi => oi.OrderId == o.Id).Select(oi => new Models.OrderItem
+                        {
+                            Book = new Models.Book
+                            {
+                                Id = oi.Book.Id,
+                                Title = oi.Book.Title,
+                                AuthorId = oi.Book.AuthorId,
+                                PublisherId = oi.Book.PublisherId,
+                                Price = (float)oi.Book.Price,
+                                StockQuantity = oi.Book.StockQuantity,
+                                Genre = oi.Book.Genre,
+                                DatePublished = oi.Book.DatePublished,
+                                Description = oi.Book.Description,
+                                Rating = oi.Book.Rating,
+                                NumberOfPages = oi.Book.NumberOfPages,
+                                ImageData = oi.Book.ImageData,
+                                ImageMimeType = oi.Book.ImageMimeType
+                            },
+                            Quantity = oi.Quantity,
+                            Price = oi.Price
+                        }).ToList()
+                }).ToList();
+
+                    foreach(var order in orders)
+                    {
+                        var orderItem = db.OrderItems.Where(oi => oi.OrderId == order.Id).Select(oi => new Models.OrderItem
+                        {
+                            Book = new Models.Book
+                            {
+                                Id = oi.Book.Id,
+                                Title = oi.Book.Title,
+                                AuthorId = oi.Book.AuthorId,
+                                PublisherId = oi.Book.PublisherId,
+                                Price = (float)oi.Book.Price,
+                                StockQuantity = oi.Book.StockQuantity,
+                                Genre = oi.Book.Genre,
+                                DatePublished = oi.Book.DatePublished,
+                                Description = oi.Book.Description,
+                                Rating = oi.Book.Rating,
+                                NumberOfPages = oi.Book.NumberOfPages,
+                                ImageData = oi.Book.ImageData,
+                                ImageMimeType = oi.Book.ImageMimeType
+                            },
+                            Quantity = oi.Quantity,
+                            Price = oi.Price
+                        }).ToList();
+                    }
+
+                    var borrowedBooks = db.Borrows.Where(bb => bb.UserId == user.Id).Select(bb => new Models.Borrow
+                    {
+                        Id = bb.Id,
+                        UserId = user.Id,
+                        BookId = bb.BookId,
+                        BorrowDate = bb.BorrowDate,
+                        DueDate = bb.DueDate,
+                        ReturnDate = bb.ReturnDate,
+                        IsReturned = bb.IsReturned,
+                        borrowFee = Math.Round(bb.BorrowFee ?? 0, 2),
+                        LateFee = Math.Round(bb.LateFee ?? 0, 2),
+                        Book = new Models.Book
+                        {
+                            Title = bb.Book.Title
+                        }
+                    }).ToList();
+
+                    var model = new UserViewModel
+                    {
+                        Id = user.Id,
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        DateOfBirth = (System.DateTime)user.DateOfBirth,
+                        Email = user.Email,
+                        Address = addressModel,
+                        Orders = orders,
+                        BorrowedBooks = borrowedBooks
+                    };
+
+                    return View(model);
+                }
+        */
         // GET: Account/EditAccount
         public ActionResult EditAccount()
         {

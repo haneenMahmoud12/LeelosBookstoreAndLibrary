@@ -1,4 +1,5 @@
 ﻿using DataLayer;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
@@ -37,7 +38,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
             {
                 BookId = bookId,
                 Quantity = quantity,
-                Price = (decimal) book.Price
+                Price = Math.Round((decimal) book.Price,2)
             };
             db.ShoppingCartItems.Add(shoppingCartItem);
             //book.StockQuantity -= quantity;
@@ -90,7 +91,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
                 Id = item.ShoppingCartItem.Id,
                 BookId = item.ShoppingCartItem.BookId,
                 Quantity = item.ShoppingCartItem.Quantity,
-                Price = (decimal)item.ShoppingCartItem.Price*item.ShoppingCartItem.Quantity,
+                Price = Math.Round((decimal)item.ShoppingCartItem.Price, 2),
                 Book = new LeelosBookstoreAndLibrary.Models.Book
                 {
                     Title = item.Book.Title,
@@ -110,7 +111,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
                 if (cartItem != null)
                 {
                     cartItem.Quantity = quantity;
-                    cartItem.Price = (decimal)(cartItem.Book.Price * quantity);
+                    cartItem.Price = Math.Round((decimal)(cartItem.Book.Price), 2);
                     db.Entry(cartItem).State = EntityState.Modified;
                     db.SaveChanges();
                 }
@@ -140,7 +141,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
                 {
                     updatedPrice = cartItem.Price.ToString(),
                     totalItems = totalItems,
-                    totalPrice = totalPrice.ToString()
+                    totalPrice = Math.Round((double)totalPrice,2).ToString()
                 });
             }
         }

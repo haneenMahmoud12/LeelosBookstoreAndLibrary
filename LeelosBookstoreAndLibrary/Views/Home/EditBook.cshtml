@@ -6,11 +6,21 @@
 
 <h2>Edit Book</h2>
 
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <p>@error.ErrorMessage</p>
+        }
+    </div>
+}
+
 
 @using (Html.BeginForm("EditBook", "Home", FormMethod.Post, null))
 {
     @Html.AntiForgeryToken()
-    @Html.HiddenFor(x=>x.Id)
+    @Html.HiddenFor(x => x.Id)
     <div class="form-horizontal">
         <h4>Book</h4>
         <hr />

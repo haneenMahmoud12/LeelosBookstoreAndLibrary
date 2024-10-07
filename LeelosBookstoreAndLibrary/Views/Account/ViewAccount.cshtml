@@ -4,6 +4,16 @@
     ViewBag.Title = "Your Account";
 }
 
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <p>@error.ErrorMessage</p>
+        }
+    </div>
+}
+
 <h2>Your Account</h2>
 
 <div>
@@ -26,48 +36,81 @@
         <dd>@Html.DisplayFor(model => model.Address.Address), @Html.DisplayFor(model => model.Address.City), @Html.DisplayFor(model => model.Address.Governorate), @Html.DisplayFor(model => model.Address.Country).</dd>
 
         <dt>Phone number:</dt>
-        <dd>@Html.DisplayFor(model => model.Address.PhoneNumber) </dd>
-        <hr />
-        <h3>Your Orders</h3>
-
-        @foreach (var order in Model.Orders)
-        {
-            <div>
-                <h4>Order #@order.Id - @order.OrderDate.ToShortDateString()</h4>
-                <p>Status: @order.Status</p>
-                <p>Total Price: @order.TotalPrice</p>
-
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Book Title</th>
-                            <th>Quantity</th>
-                            <th>Price</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in order.OrderItems)
-                        {
-                            <tr>
-                                <td>@item.Book.Title</td>
-                                <td>@item.Quantity</td>
-                                <td>@item.Price</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-                @if (order.Status != "Recieved")
-                {
-                    @Html.ActionLink("Cancel Order", "CancelOrder", "Order", new { id = order.Id }, null)
-                }
-            </div>
-            <hr />
-        }
-
+        <dd>@Html.DisplayFor(model => model.Address.PhoneNumber)</dd>
     </dl>
+    <hr />
+
+    <h3>Your Orders</h3>
+
+    @foreach (var order in Model.Orders)
+    {
+        <div>
+            <h4>Order #@order.Id - @order.OrderDate.ToShortDateString()</h4>
+            <p>Status: @order.Status</p>
+            <p>Total Price: @order.TotalPrice.ToString("F2")</p>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Book Title</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in order.OrderItems)
+                    {
+                        <tr>
+                            <td>@item.Book.Title</td>
+                            <td>@item.Quantity</td>
+                            <td>@item.Price.ToString("F2")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            @if (order.Status != "Received")
+            {
+                @Html.ActionLink("Cancel Order", "CancelOrder", "Order", new { id = order.Id }, null)
+            }
+        </div>
+        <hr />
+    }
+
+   
+    @if (Model.Orders.Count > 0)
+    {
+        <div>
+            <ul class="pagination">
+                @for (int i = 1; i <= Math.Ceiling((double)Model.TotalOrders / Model.OrderPageSize); i++)
+                {
+                    <li class="@(i == Model.OrderPage ? "active" : "")">
+                        <a href="@Url.Action("ViewAccount", new { orderPage = i, orderPageSize = Model.OrderPageSize, borrowPage = Model.BorrowPage })">@i</a>
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+
 </div>
 
+<!-- Partial for Borrowed Books -->
 @Html.Partial("~/Views/Borrow/_BorrowedBooks.cshtml", Model.BorrowedBooks)
+
+<!-- Borrowed Books Pagination -->
+@if (Model.BorrowedBooks != null && Model.BorrowedBooks.Any())
+{
+    <div>
+        <ul class="pagination">
+            @for (int i = 1; i <= Math.Ceiling((double)Model.TotalBorrowedBooks / Model.BorrowPageSize); i++)
+            {
+                <li class="@(i == Model.BorrowPage ? "active" : "")">
+                    <a href="@Url.Action("ViewAccount", new { orderPage = Model.OrderPage, borrowPage = i, borrowPageSize = Model.BorrowPageSize })">@i</a>
+                </li>
+            }
+        </ul>
+    </div>
+}
+
 <p>
     @Html.ActionLink("Edit Account", "EditAccount", new { id = Model.Id })
 </p>

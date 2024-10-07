@@ -28,7 +28,7 @@ namespace LeelosBookstoreAndLibrary.Models
         [DataType(DataType.Date)]
         public DateTime DateOfBirth { get; set; }
 
-        public int RoleId { get; set; }  // Foreign key for Role
+        public int RoleId { get; set; } = 1;  // Foreign key for Role
 
         // Navigation property
         public virtual Role Role { get; set; }  // Navigation to Role

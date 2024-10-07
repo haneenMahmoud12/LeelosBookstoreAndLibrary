@@ -1,10 +1,21 @@
 ﻿@model LeelosBookstoreAndLibrary.Models.CheckoutViewModel
 
 @*@{
-    ViewBag.Title = "Checkout";
-}*@
+        ViewBag.Title = "Checkout";
+    }*@
 
 <h2>Checkout</h2>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <p>@error.ErrorMessage</p>
+        }
+    </div>
+}
+
 
 <!-- User Info -->
 <h3>User Information</h3>
