@@ -32,9 +32,19 @@
                     @if (!string.IsNullOrEmpty(Session["UserId"]?.ToString()))
                     {
                         <li>@Html.ActionLink("Account", "ViewAccount", "Account")</li>
-                        <li>@Html.ActionLink("Shopping Cart", "ViewCart", "ShoppingCart")</li>
-                        <li>@Html.ActionLink("Borrow Cart", "ViewBorrowCart", "Borrow")</li>
+
                         <li>@Html.ActionLink("Logout", "Logout", "Account")</li>
+                        if (Session["UserId"].Equals("1"))
+                        {
+                            <li>@Html.ActionLink("Shopping Cart", "ViewCart", "ShoppingCart")</li>
+                            <li>@Html.ActionLink("Borrow Cart", "ViewBorrowCart", "Borrow")</li>
+                        }
+                        else
+                        {
+                            @*<li>@Html.ActionLink("Authors", "ViewAuthors", "Admin")</li>
+                            <li>@Html.ActionLink("Publishers", "ViewPublishers", "Admin")</li>*@
+                            <li>@Html.ActionLink("Users", "ViewUsers", "Admin")</li>
+                        }
                     }
                     else
                     {

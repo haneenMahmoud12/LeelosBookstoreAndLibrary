@@ -208,7 +208,14 @@ namespace LeelosBookstoreAndLibrary.Models
                 .ForMember(dest => dest.ShoppingCart, opt => opt.MapFrom(src => src.ShoppingCart))
                 .ForMember(dest => dest.ShoppingCartItem, opt => opt.MapFrom(src => src.ShoppingCartItem));
 
-            // Mapping for User
+            CreateMap<Models.Role, DataLayer.Role>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+
+            CreateMap<DataLayer.Role, Models.Role>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+
             CreateMap<DataLayer.User, Models.User>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.FirstName))

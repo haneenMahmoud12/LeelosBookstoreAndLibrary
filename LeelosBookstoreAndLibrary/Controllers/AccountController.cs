@@ -131,15 +131,29 @@ namespace LeelosBookstoreAndLibrary.Controllers
                     var userModel = UserInfo(user);
 
                     var address = db.Addresses.FirstOrDefault(a => a.UserId == user.Id);
-                    ShippingInfo addressModel = UserAddress(address);
 
-                    // Paging for Orders
-                    var totalOrdersCount = db.Orders.Count(order => order.UserId == userId);
-                    var ordersQuery = UserOrders(totalOrdersCount, orderPage, orderPageSize, (int)userId);
+                    ShippingInfo addressModel = new ShippingInfo();
+                    if(address != null)
+                    {
+                        addressModel = UserAddress(address);
+                    }
 
-                    // Paging for Borrowed Books
-                    var totalBorrowedBooksCount = db.Borrows.Count(bb => bb.UserId == user.Id);
-                    var borrowedBooksQuery = UserBorrows(totalBorrowedBooksCount, borrowPage, borrowPageSize, (int)userId);
+
+                    var ordersQuery = new List<Models.Order>();
+                    int totalOrdersCount = 0;
+                    var borrowedBooksQuery = new List<Models.Borrow>();
+                    var totalBorrowedBooksCount = 0;
+
+                    if (user.RoleId == 1)
+                    {
+                        // Paging for Orders
+                        totalOrdersCount = db.Orders.Count(order => order.UserId == userId);
+                        ordersQuery = UserOrders(totalOrdersCount, orderPage, orderPageSize, (int)userId);
+
+                        // Paging for Borrowed Books
+                        totalBorrowedBooksCount = db.Borrows.Count(bb => bb.UserId == user.Id);
+                        borrowedBooksQuery = UserBorrows(totalBorrowedBooksCount, borrowPage, borrowPageSize, (int)userId);
+                    }
 
                     var model = new UserViewModel
                     {

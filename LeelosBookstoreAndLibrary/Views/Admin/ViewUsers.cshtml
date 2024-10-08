@@ -1,0 +1,40 @@
+﻿@model IEnumerable<LeelosBookstoreAndLibrary.Models.User>
+
+<h2>View Users</h2>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">@TempData["Message"]</div>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.FirstName @user.LastName</td>
+                <td>@user.Email</td>
+                <td>@user.Role.Name</td>
+                <td>
+                    @using (Html.BeginForm("ChangeUserRole", "Admin", FormMethod.Post))
+                    {
+                        @Html.Hidden("userId", user.Id)
+                        <select name="newRoleId" class="form-control">
+                            <option value="1" @(user.RoleId == 1 ? "selected" : "")>User</option>
+                            <option value="2" @(user.RoleId == 2 ? "selected" : "")>Admin</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-primary">Change Role</button>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
