@@ -93,7 +93,19 @@
                 }
             </ul>
         </div>
+
+        <!-- Page Size Dropdown -->
+        <form method="get" action="@Url.Action("ViewAccount")" class="form-inline">
+            <label for="orderPageSize">Items per page:</label>
+            <select id="orderPageSize" name="orderPageSize" onchange="this.form.submit()">
+                <option value="4" @(Model.OrderPageSize == 4 ? "selected" : "")>4</option>
+                <option value="10" @(Model.OrderPageSize == 10 ? "selected" : "")>10</option>
+                <option value="50" @(Model.OrderPageSize == 50 ? "selected" : "")>50</option>
+                <option value="100" @(Model.OrderPageSize == 100 ? "selected" : "")>100</option>
+            </select>
+        </form>
     }
+
 
 </div>
 
@@ -113,8 +125,15 @@
             }
         </ul>
     </div>
-}
 
-<p>
-    @Html.ActionLink("Edit Account", "EditAccount", new { id = Model.Id })
-</p>
+    <!-- Page Size Dropdown -->
+    <form method="get" action="@Url.Action("ViewAccount")" class="form-inline">
+        <label for="BorrowPageSize">Items per page:</label>
+        <select id="BorrowPageSize" name="BorrowPageSize" onchange="this.form.submit()">
+            <option value="4" @(Model.BorrowPageSize == 4 ? "selected" : "")>4</option>
+            <option value="10" @(Model.BorrowPageSize == 10 ? "selected" : "")>10</option>
+            <option value="50" @(Model.BorrowPageSize == 50 ? "selected" : "")>50</option>
+            <option value="100" @(Model.BorrowPageSize == 100 ? "selected" : "")>100</option>
+        </select>
+    </form>
+}

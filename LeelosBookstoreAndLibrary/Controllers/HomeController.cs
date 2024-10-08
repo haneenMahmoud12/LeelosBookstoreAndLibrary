@@ -11,62 +11,91 @@ namespace LeelosBookstoreAndLibrary.Controllers
 {
     public class HomeController : Controller
     {
-        public ActionResult Index(string searchQuery, int page = 1, int pageSize = 4)
+        public ActionResult Index(string searchQuery, string sortOrder, int page = 1, int pageSize = 4)
         {
             LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities();
 
-            // Filter by search query IF provided
-            var booksQuery = db.Books.Include("Author").Include("Publisher").AsQueryable();
-
-            if (!string.IsNullOrEmpty(searchQuery))
+            try
             {
-                searchQuery = searchQuery.ToLower();
-                booksQuery = booksQuery.Where(b => b.Title.ToLower().Contains(searchQuery) ||
-                                                   b.Genre.ToLower().Contains(searchQuery) ||
-                                                   b.Author.FirstName.ToLower().Contains(searchQuery) ||
-                                                   b.Author.LastName.ToLower().Contains(searchQuery));
-            }
+                // Filter by search query IF provided
+                var booksQuery = db.Books.Include("Author").Include("Publisher").AsQueryable();
 
-            var totalBooksCount = booksQuery.Count();
+                if (!string.IsNullOrEmpty(searchQuery))
+                {
+                    searchQuery = searchQuery.ToLower();
+                    booksQuery = booksQuery.Where(b => b.Title.ToLower().Contains(searchQuery) ||
+                                                       b.Genre.ToLower().Contains(searchQuery) ||
+                                                       b.Author.FirstName.ToLower().Contains(searchQuery) ||
+                                                       b.Author.LastName.ToLower().Contains(searchQuery));
+                }
 
-            var books = booksQuery.OrderBy(b => b.Title)
-                                  .Skip((page - 1) * pageSize)
-                                  .Take(pageSize)
-                                  .Select(book => new Models.Book
-                                  {
-                                      Id = book.Id,
-                                      Title = book.Title,
-                                      Description = book.Description,
-                                      StockQuantity = book.StockQuantity,
-                                      AuthorId = book.AuthorId,
-                                      Genre = book.Genre,
-                                      Price = (float)Math.Round(book.Price, 2),
-                                      Rating = book.Rating,
-                                      PublisherId = book.PublisherId,
-                                      DatePublished = book.DatePublished,
-                                      NumberOfPages = book.NumberOfPages,
-                                      ImageData = book.ImageData,
-                                      ImageMimeType = book.ImageMimeType,
-                                      Author = new Models.Author
+                switch (sortOrder)
+                {
+                    case "price":
+                        booksQuery = booksQuery.OrderBy(b => b.Price);
+                        break;
+                    case "author":
+                        booksQuery = booksQuery.OrderBy(b => b.Author.LastName);
+                        break;
+                    case "genre":
+                        booksQuery = booksQuery.OrderBy(b => b.Genre);
+                        break;
+                    default: // Default sort by title
+                        booksQuery = booksQuery.OrderBy(b => b.Title);
+                        break;
+                }
+                var totalBooksCount = booksQuery.Count();
+
+                var books = booksQuery
+                                      .Skip((page - 1) * pageSize)
+                                      .Take(pageSize)
+                                      .Where(b => b.isActive==true)
+                                      .Select(book => new Models.Book
                                       {
-                                          FirstName = book.Author.FirstName,
-                                          LastName = book.Author.LastName
-                                      }
-                                  }).ToList();
+                                          Id = book.Id,
+                                          Title = book.Title,
+                                          Description = book.Description,
+                                          StockQuantity = book.StockQuantity,
+                                          AuthorId = book.AuthorId,
+                                          Genre = book.Genre,
+                                          Price = (float)Math.Round(book.Price, 2),
+                                          Rating = book.Rating,
+                                          PublisherId = book.PublisherId,
+                                          DatePublished = book.DatePublished,
+                                          NumberOfPages = book.NumberOfPages,
+                                          ImageData = book.ImageData,
+                                          ImageMimeType = book.ImageMimeType,
+                                          Author = new Models.Author
+                                          {
+                                              FirstName = book.Author.FirstName,
+                                              LastName = book.Author.LastName
+                                          }
+                                      }).ToList();
 
-            var model = new Models.BooksViewModel
+                var model = new Models.BooksViewModel
+                {
+                    Books = books,
+                    CurrentPage = page,
+                    PageSize = pageSize,
+                    TotalBooksCount = totalBooksCount,
+                    SearchQuery = searchQuery,
+                    SortOrder = sortOrder
+                };
+
+                return View(model);
+            }
+            catch (Exception e)
             {
-                Books = books,
-                CurrentPage = page,
-                PageSize = pageSize,
-                TotalBooksCount = totalBooksCount,
-                SearchQuery = searchQuery
-            };
-
-            return View(model);
+                ModelState.AddModelError("", e.Message);
+                TempData["ErrorMessage"] = e.Message;
+                return RedirectToAction("Error", "Home");
+            }
         }
 
-
+        public ActionResult TestToastr()
+        {
+            return View();
+        }
         public ActionResult AddBook()
         {
             Models.Book bookModel = new Models.Book();
@@ -78,26 +107,37 @@ namespace LeelosBookstoreAndLibrary.Controllers
         {
             using (LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities())
             {
-                Book book = new Book
+                try
                 {
-                    Title = bookModel.Title,
-                    Description = bookModel.Description,
-                    AuthorId = bookModel.AuthorId,
-                    Genre = bookModel.Genre,
-                    Price = Math.Round(bookModel.Price,2),
-                    StockQuantity = bookModel.StockQuantity,
-                    Rating = bookModel.Rating,
-                    PublisherId = bookModel.PublisherId,
-                    DatePublished = bookModel.DatePublished,
-                    NumberOfPages = bookModel.NumberOfPages,
-                    ImageData = bookModel.ImageData,
-                    ImageMimeType = bookModel.ImageMimeType
-                };
+                    Book book = new Book
+                    {
+                        Title = bookModel.Title,
+                        Description = bookModel.Description,
+                        AuthorId = bookModel.AuthorId,
+                        Genre = bookModel.Genre,
+                        Price = Math.Round(bookModel.Price, 2),
+                        StockQuantity = bookModel.StockQuantity,
+                        Rating = bookModel.Rating,
+                        PublisherId = bookModel.PublisherId,
+                        DatePublished = bookModel.DatePublished,
+                        NumberOfPages = bookModel.NumberOfPages,
+                        ImageData = bookModel.ImageData,
+                        ImageMimeType = bookModel.ImageMimeType,
+                        isActive = true
+                    };
 
-                db.Books.Add(book);
-                db.SaveChanges();
+                    db.Books.Add(book);
+                    db.SaveChanges();
 
-                return RedirectToAction("Index");
+                    TempData["Message"] = "Book added successfully.";
+                    return RedirectToAction("Index");
+                }
+                catch (Exception e)
+                {
+                    ModelState.AddModelError("", e.Message);
+                    TempData["ErrorMessage"] = e.Message;
+                    return RedirectToAction("Error", "Home");
+                }
             }
                 //return View(bookModel);
         }
@@ -107,25 +147,34 @@ namespace LeelosBookstoreAndLibrary.Controllers
             Models.Book bookModel = new Models.Book();
             using(LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities())
             {
-                Book book = db.Books.FirstOrDefault(x => x.Id == id);
-                if (book != null)
+                try
                 {
-                    bookModel = new Models.Book
+                    Book book = db.Books.FirstOrDefault(x => x.Id == id && x.isActive==true);
+                    if (book != null)
                     {
-                        Id = book.Id,
-                        Title = book.Title,
-                        Description = book.Description,
-                        StockQuantity = book.StockQuantity,
-                        AuthorId = book.AuthorId,
-                        Genre = book.Genre,
-                        Price = (float) Math.Round(book.Price,2),
-                        Rating = book.Rating,
-                        PublisherId = book.PublisherId,
-                        DatePublished = book.DatePublished,
-                        NumberOfPages = book.NumberOfPages,
-                        ImageData = book.ImageData,
-                        ImageMimeType = book.ImageMimeType
-                    };
+                        bookModel = new Models.Book
+                        {
+                            Id = book.Id,
+                            Title = book.Title,
+                            Description = book.Description,
+                            StockQuantity = book.StockQuantity,
+                            AuthorId = book.AuthorId,
+                            Genre = book.Genre,
+                            Price = (float)Math.Round(book.Price, 2),
+                            Rating = book.Rating,
+                            PublisherId = book.PublisherId,
+                            DatePublished = book.DatePublished,
+                            NumberOfPages = book.NumberOfPages,
+                            ImageData = book.ImageData,
+                            ImageMimeType = book.ImageMimeType
+                        };
+                    }
+                }
+                catch (Exception e)
+                {
+                    ModelState.AddModelError("", e.Message);
+                    TempData["ErrorMessage"] = e.Message;
+                    return RedirectToAction("Error", "Home");
                 }
             }
             return View(bookModel);
@@ -138,7 +187,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
             {
                 try
                 {
-                    Book book = db.Books.FirstOrDefault(x => x.Id == bookModel.Id);
+                    Book book = db.Books.FirstOrDefault(x => x.Id == bookModel.Id && x.isActive==true);
 
                     if (book == null)
                     {
@@ -163,10 +212,11 @@ namespace LeelosBookstoreAndLibrary.Controllers
 
                     return RedirectToAction("Index");
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    ModelState.AddModelError("", "The book you are trying to edit was modified or deleted by another user. Please reload and try again.");
-                    return View(bookModel);
+                    ModelState.AddModelError("", e.Message);
+                    TempData["ErrorMessage"] = e.Message;
+                    return RedirectToAction("Error", "Home");
                 }
             }
         }
@@ -176,39 +226,63 @@ namespace LeelosBookstoreAndLibrary.Controllers
             Models.Book bookModel = new Models.Book();
             using (LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities())
             {
-                Book book = db.Books.FirstOrDefault(x => x.Id == id);
-                if (book != null)
+                try
                 {
-                    /*bookModel = new Models.Book
+                    Book book = db.Books.FirstOrDefault(x => x.Id == id && x.isActive == true);
+                    if (book != null)
                     {
-                        Id = book.Id,
-                        Title = book.Title,
-                        Description = book.Description,
-                        StockQuantity = book.StockQuantity,
-                        AuthorId = book.AuthorId,
-                        Genre = book.Genre,
-                        Price = (float)book.Price,
-                        Rating = book.Rating,
-                        PublisherId = book.PublisherId,
-                        DatePublished = book.DatePublished,
-                        NumberOfPages = book.NumberOfPages,
-                        ImageData = book.ImageData,
-                        ImageMimeType = book.ImageMimeType,
-                        Author = new Models.Author
-                        {
-                            FirstName = book.Author.FirstName,
-                            LastName = book.Author.LastName,
-                        },
-                        Publisher = new Models.Publisher
-                        {
-                            Name = book.Publisher.Name
-                        }
-                    };*/
-                    bookModel = MapperInstance.Mapper.Map<DataLayer.Book, Models.Book>(book);
+                        bookModel = MapperInstance.Mapper.Map<DataLayer.Book, Models.Book>(book);
+                    }
+                }
+                catch (Exception e)
+                {
+                    ModelState.AddModelError("", e.Message);
+                    TempData["ErrorMessage"] = e.Message;
+                    return RedirectToAction("Error", "Home");
                 }
             }
             return View(bookModel);
         }
+
+        [HttpPost]
+       // [ValidateAntiForgeryToken]
+        public ActionResult DeleteBook(int id)
+        {
+            using (LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities())
+            {
+                try
+                {
+                    Book book = db.Books.Find(id);
+
+                    if (book == null)
+                    {
+                        return HttpNotFound();
+                    }
+                    else if(book.isActive == false)
+                    {
+                        ModelState.AddModelError("", "The book you are trying to edit was modified or deleted by another user. Please reload and try again.");
+                        TempData["ErrorMessage"] = "The book you are trying to edit was modified or deleted by another user. Please reload and try again.";
+                        return RedirectToAction("Index");
+                    }
+                    else
+                    {
+                        book.isActive = false;
+                        db.Entry(book).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+                    }
+
+                    TempData["Message"] = "Book deleted successfully.";
+                    return RedirectToAction("Index");
+                }
+                catch (Exception)
+                {
+                    ModelState.AddModelError("", "The book you are trying to edit was modified or deleted by another user. Please reload and try again.");
+                    TempData["ErrorMessage"] = "The book you are trying to edit was modified or deleted by another user. Please reload and try again.";
+                    return RedirectToAction("Index");
+                }
+            }
+        }
+
         public ActionResult About()
             {
                 ViewBag.Message = "Your application description page.";

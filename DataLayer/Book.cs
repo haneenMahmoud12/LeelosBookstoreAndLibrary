@@ -36,6 +36,7 @@ namespace DataLayer
         public Nullable<int> NumberOfPages { get; set; }
         public byte[] ImageData { get; set; }
         public string ImageMimeType { get; set; }
+        public bool isActive { get; set; }
     
         public virtual Author Author { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

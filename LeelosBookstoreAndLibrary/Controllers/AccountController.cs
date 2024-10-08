@@ -48,22 +48,13 @@ namespace LeelosBookstoreAndLibrary.Controllers
                 catch (Exception e)
                 {
                     ModelState.AddModelError("", e.Message);
+                    TempData["ErrorMessage"] = e.Message;
+                    return RedirectToAction("Error", "Home");
                 }
             }
 
             return View(user); // Ensure this returns the user object with validation messages
         }
-
-
-       /* DataLayer.User userToAdd = new DataLayer.User
-        {
-            Email = user.Email,
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            Password = user.Password,
-            DateOfBirth = user.DateOfBirth,
-            RoleId = 1
-        };*/
 
         // GET: Account/Login
         public ActionResult Login()
@@ -102,10 +93,11 @@ namespace LeelosBookstoreAndLibrary.Controllers
             catch (Exception e)
             {
                 ModelState.AddModelError("", e.Message);
+                TempData["ErrorMessage"] = e.Message;
+                return RedirectToAction("Error", "Home");
             }
             return View(user);
         }
-
 
         // GET: Account/Logout
         public ActionResult Logout()
@@ -118,53 +110,67 @@ namespace LeelosBookstoreAndLibrary.Controllers
 
         public ActionResult ViewAccount(int orderPage = 1, int orderPageSize = 2, int borrowPage = 1, int borrowPageSize = 4)
         {
-            LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities();
-            var userId = Session["UserId"] as int?;
-
-            if (!userId.HasValue)
+            try
             {
-                return RedirectToAction("Login");
+                using (LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities())
+                {
+                    var userId = Session["UserId"] as int?;
+
+                    if (!userId.HasValue)
+                    {
+                        return RedirectToAction("Login");
+                    }
+
+                    var user = db.Users.FirstOrDefault(u => u.Id == userId);
+
+                    if (user == null)
+                    {
+                        return HttpNotFound();
+                    }
+
+                    var userModel = UserInfo(user);
+
+                    var address = db.Addresses.FirstOrDefault(a => a.UserId == user.Id);
+                    ShippingInfo addressModel = UserAddress(address);
+
+                    // Paging for Orders
+                    var totalOrdersCount = db.Orders.Count(order => order.UserId == userId);
+                    var ordersQuery = UserOrders(totalOrdersCount, orderPage, orderPageSize, (int)userId);
+
+                    // Paging for Borrowed Books
+                    var totalBorrowedBooksCount = db.Borrows.Count(bb => bb.UserId == user.Id);
+                    var borrowedBooksQuery = UserBorrows(totalBorrowedBooksCount, borrowPage, borrowPageSize, (int)userId);
+
+                    var model = new UserViewModel
+                    {
+                        Id = user.Id,
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        DateOfBirth = (DateTime)user.DateOfBirth,
+                        Email = user.Email,
+                        Address = addressModel,
+                        Orders = ordersQuery,
+                        BorrowedBooks = borrowedBooksQuery,
+                        OrderPage = orderPage,
+                        OrderPageSize = orderPageSize,
+                        BorrowPage = borrowPage,
+                        BorrowPageSize = borrowPageSize,
+                        TotalOrders = totalOrdersCount,  // Total count without paging
+                        TotalBorrowedBooks = totalBorrowedBooksCount  // Total count without paging
+                    };
+
+                    return View(model);
+                }
             }
-
-            var user = db.Users.FirstOrDefault(u => u.Id == userId);
-
-            if (user == null)
+            catch (Exception ex)
             {
-                return HttpNotFound();
+                //  NLog or log4net
+                // Logger.Error(ex, "Error in ViewAccount method.");
+
+                TempData["ErrorMessage"] = "An error occurred while retrieving your account information. Please try again later.";
+
+                return RedirectToAction("Error", "Home");
             }
-
-            var userModel = UserInfo(user);
-
-            var address = db.Addresses.FirstOrDefault(a => a.UserId == user.Id);
-            ShippingInfo addressModel = UserAddress(address);
-
-            // Paging for Orders
-            var totalOrdersCount = db.Orders.Count(order => order.UserId == userId);
-            var ordersQuery = UserOrders(totalOrdersCount,orderPage, orderPageSize, (int)userId);
-
-            // Paging for Borrowed Books
-            var totalBorrowedBooksCount = db.Borrows.Count(bb => bb.UserId == user.Id);
-            var borrowedBooksQuery = UserBorrows(totalBorrowedBooksCount, borrowPage, borrowPageSize, (int)userId);
-
-            var model = new UserViewModel
-            {
-                Id = user.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                DateOfBirth = (System.DateTime)user.DateOfBirth,
-                Email = user.Email,
-                Address = addressModel,
-                Orders = ordersQuery,
-                BorrowedBooks = borrowedBooksQuery,
-                OrderPage = orderPage,
-                OrderPageSize = orderPageSize,
-                BorrowPage = borrowPage,
-                BorrowPageSize = borrowPageSize,
-                TotalOrders = totalOrdersCount,  // Total count without paging
-                TotalBorrowedBooks = totalBorrowedBooksCount  // Total count without paging
-            };
-
-            return View(model);
         }
 
         public Models.User UserInfo(DataLayer.User user)
@@ -262,192 +268,79 @@ namespace LeelosBookstoreAndLibrary.Controllers
             return borrowedBooksQuery;
         }
 
-        /*        public ActionResult ViewAccount()
-                {
-                    LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities();
-                    var userId = Session["UserId"] as int?;
-
-                    if (!userId.HasValue)
-                    {
-                        return RedirectToAction("Login");
-                    }
-
-                    var user = db.Users.FirstOrDefault(u => u.Id == userId);
-
-                    if (user == null)
-                    {
-                        return HttpNotFound();
-                    }
-
-                    var userModel = new Models.User
-                    {
-                        Id = user.Id,
-                        FirstName = user.FirstName,
-                        LastName = user.LastName,
-                        Email = user.Email,
-                        DateOfBirth = (System.DateTime)user.DateOfBirth
-                    };
-
-                    var address = db.Addresses.FirstOrDefault(a => a.UserId == user.Id);
-                    ShippingInfo addressModel = new ShippingInfo
-                    {
-                        Address = address.Address1,
-                        City = address.City,
-                        Governorate = address.Governorate,
-                        Country = address.Country,
-                        ZipCode = address.ZipCode,
-                        PhoneNumber = address.PhoneNumber
-                    };
-
-                    var orders = db.Orders.Where(order => order.UserId == userId).Select(o => new Models.Order {
-                        Id = o.Id,
-                        UserId = o.UserId,
-                        OrderDate = o.OrderDate,
-                        Status = o.Status,
-                        TotalPrice = o.TotalPrice,
-                        OrderItems = db.OrderItems.Where(oi => oi.OrderId == o.Id).Select(oi => new Models.OrderItem
-                        {
-                            Book = new Models.Book
-                            {
-                                Id = oi.Book.Id,
-                                Title = oi.Book.Title,
-                                AuthorId = oi.Book.AuthorId,
-                                PublisherId = oi.Book.PublisherId,
-                                Price = (float)oi.Book.Price,
-                                StockQuantity = oi.Book.StockQuantity,
-                                Genre = oi.Book.Genre,
-                                DatePublished = oi.Book.DatePublished,
-                                Description = oi.Book.Description,
-                                Rating = oi.Book.Rating,
-                                NumberOfPages = oi.Book.NumberOfPages,
-                                ImageData = oi.Book.ImageData,
-                                ImageMimeType = oi.Book.ImageMimeType
-                            },
-                            Quantity = oi.Quantity,
-                            Price = oi.Price
-                        }).ToList()
-                }).ToList();
-
-                    foreach(var order in orders)
-                    {
-                        var orderItem = db.OrderItems.Where(oi => oi.OrderId == order.Id).Select(oi => new Models.OrderItem
-                        {
-                            Book = new Models.Book
-                            {
-                                Id = oi.Book.Id,
-                                Title = oi.Book.Title,
-                                AuthorId = oi.Book.AuthorId,
-                                PublisherId = oi.Book.PublisherId,
-                                Price = (float)oi.Book.Price,
-                                StockQuantity = oi.Book.StockQuantity,
-                                Genre = oi.Book.Genre,
-                                DatePublished = oi.Book.DatePublished,
-                                Description = oi.Book.Description,
-                                Rating = oi.Book.Rating,
-                                NumberOfPages = oi.Book.NumberOfPages,
-                                ImageData = oi.Book.ImageData,
-                                ImageMimeType = oi.Book.ImageMimeType
-                            },
-                            Quantity = oi.Quantity,
-                            Price = oi.Price
-                        }).ToList();
-                    }
-
-                    var borrowedBooks = db.Borrows.Where(bb => bb.UserId == user.Id).Select(bb => new Models.Borrow
-                    {
-                        Id = bb.Id,
-                        UserId = user.Id,
-                        BookId = bb.BookId,
-                        BorrowDate = bb.BorrowDate,
-                        DueDate = bb.DueDate,
-                        ReturnDate = bb.ReturnDate,
-                        IsReturned = bb.IsReturned,
-                        borrowFee = Math.Round(bb.BorrowFee ?? 0, 2),
-                        LateFee = Math.Round(bb.LateFee ?? 0, 2),
-                        Book = new Models.Book
-                        {
-                            Title = bb.Book.Title
-                        }
-                    }).ToList();
-
-                    var model = new UserViewModel
-                    {
-                        Id = user.Id,
-                        FirstName = user.FirstName,
-                        LastName = user.LastName,
-                        DateOfBirth = (System.DateTime)user.DateOfBirth,
-                        Email = user.Email,
-                        Address = addressModel,
-                        Orders = orders,
-                        BorrowedBooks = borrowedBooks
-                    };
-
-                    return View(model);
-                }
-        */
         // GET: Account/EditAccount
         public ActionResult EditAccount()
         {
-            var userId = Session["UserId"] as int?;
-
-            if (!userId.HasValue)
+            try
             {
-                return RedirectToAction("Login"); // Redirect if not logged in
-            }
+                var userId = Session["UserId"] as int?;
 
-            LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities();
-            var user = db.Users.Find(userId);
-
-            if (user == null)
-            {
-                return HttpNotFound();
-            }
-
-            var address = db.Addresses.FirstOrDefault(a => a.UserId == user.Id);
-
-            var model = new Models.UserViewModel
-            {
-                Id = user.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email,
-                DateOfBirth = (System.DateTime)user.DateOfBirth,
-                Address = new ShippingInfo
+                if (!userId.HasValue)
                 {
-                    Address = address.Address1,
-                    City = address.City,
-                    Country = address.Country,
-                    Governorate = address.Governorate,
-                    ZipCode = address.ZipCode,
-                    PhoneNumber = address.PhoneNumber
+                    return RedirectToAction("Login");
                 }
-            };
 
-            
+                LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities();
+                var user = db.Users.Find(userId);
 
-            return View(model);
+                if (user == null)
+                {
+                    return HttpNotFound();
+                }
+
+                var address = db.Addresses.FirstOrDefault(a => a.UserId == user.Id);
+
+                var model = new Models.UserViewModel
+                {
+                    Id = user.Id,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Email = user.Email,
+                    DateOfBirth = (System.DateTime)user.DateOfBirth,
+                    Address = new ShippingInfo
+                    {
+                        Address = address.Address1,
+                        City = address.City,
+                        Country = address.Country,
+                        Governorate = address.Governorate,
+                        ZipCode = address.ZipCode,
+                        PhoneNumber = address.PhoneNumber
+                    }
+                };
+
+                return View(model);
+            }
+            catch(Exception e)
+            {
+                TempData["ErrorMessage"] = e.Message;
+
+                return RedirectToAction("Error", "Home"); 
+            }
         }
-
 
         // POST: Account/EditAccount
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult EditAccount(Models.UserViewModel user, string currentPassword, string newPassword, string confirmNewPassword)
+        public ActionResult EditAccount(Models.UserViewModel user)
         {
-            List<string> errorMessages = new List<string>();
-
-            using (LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities())
+            try
             {
-                var userToUpdate = db.Users.FirstOrDefault(u => u.Id == user.Id);
-                var userAddress = db.Addresses.FirstOrDefault(a => a.UserId == user.Id);
+                List<string> errorMessages = new List<string>();
 
-                if (userToUpdate != null)
+                using (LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities())
                 {
+                    var userToUpdate = db.Users.FirstOrDefault(u => u.Id == user.Id);
+                    var userAddress = db.Addresses.FirstOrDefault(a => a.UserId == user.Id);
+
+                    if (userToUpdate == null) return View(user); // User not found
+
+                    // Update user details
                     userToUpdate.FirstName = user.FirstName;
                     userToUpdate.LastName = user.LastName;
                     userToUpdate.Email = user.Email;
 
-                    if(userAddress != null)
+                    // Update address if it exists
+                    if (userAddress != null)
                     {
                         userAddress.PhoneNumber = user.Address.PhoneNumber;
                         userAddress.Address1 = user.Address.Address;
@@ -457,42 +350,96 @@ namespace LeelosBookstoreAndLibrary.Controllers
                         userAddress.ZipCode = user.Address.ZipCode;
                     }
 
-                    if (!string.IsNullOrEmpty(currentPassword))
-                    {
-                        if (!userToUpdate.Password.Equals(currentPassword))
-                        {
-                            errorMessages.Add("Current password is incorrect.");
-                        }
-
-                        if (!string.IsNullOrEmpty(newPassword))
-                        {
-                            if (newPassword.Length < 6)
-                            {
-                                errorMessages.Add("Password must be at least 6 characters long.");
-                            }
-                            else if (!newPassword.Equals(confirmNewPassword))
-                            {
-                                errorMessages.Add("New password and confirmation do not match.");
-                            }
-                            else
-                            {
-                                userToUpdate.Password = newPassword;
-                            }
-                        }
-                    }
+                    
 
                     if (errorMessages.Count > 0)
                     {
                         ViewBag.ErrorMessages = errorMessages;
-                        return View(user);
+                        return View(user); // Return with errors
                     }
 
+                    // Update the user and address if all validations passed
+                    db.Entry(userToUpdate).State = System.Data.Entity.EntityState.Modified;
+                    if (userAddress != null)
+                    {
+                        db.Entry(userAddress).State = System.Data.Entity.EntityState.Modified;
+                    }
                     db.SaveChanges();
+
+                    // Update session with new username
                     Session["UserName"] = $"{userToUpdate.FirstName} {userToUpdate.LastName}";
+
                     return RedirectToAction("ViewAccount");
                 }
             }
-            return View(user);
+            catch (Exception ex)
+            {
+                // Log the exception (consider using a logging framework)
+                ViewBag.ErrorMessages = new List<string> { "An error occurred while updating your account. Please try again later." };
+                return View(user); // Return the view with an error message
+            }
+        }
+
+        public ActionResult ChangePassword()
+        {
+            return View(new ChangePasswordViewModel());
+        }
+
+        [HttpPost]
+        public ActionResult ChangePassword(ChangePasswordViewModel model)
+        {
+            try
+            {
+                int userId = (int)Session["UserId"];
+                using (LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities())
+                {
+                    var userToUpdate = db.Users.FirstOrDefault(u => u.Id == userId);
+                    if (!string.IsNullOrEmpty(model.CurrentPassword))
+                    {
+                        if (!userToUpdate.Password.Equals(model.CurrentPassword))
+                        {
+                            model.ErrorMessages.Add("Current password is incorrect.");
+                        }
+
+                        if (!string.IsNullOrEmpty(model.NewPassword))
+                        {
+                            if (model.NewPassword.Length < 6)
+                            {
+                                model.ErrorMessages.Add("Password must be at least 6 characters long.");
+                            }
+                            else if (!model.NewPassword.Equals(model.ConfirmNewPassword))
+                            {
+                                model.ErrorMessages.Add("New password and confirmation do not match.");
+                            }
+                            else
+                            {
+                                userToUpdate.Password = model.NewPassword;
+                            }
+                        }
+                    }
+
+                    if (model.ErrorMessages.Count > 0)
+                    {
+                        return View(model); // Return with errors
+                    }
+
+                    // Update the user if all validations passed
+                    db.Entry(userToUpdate).State = System.Data.Entity.EntityState.Modified;
+                    db.SaveChanges();
+                    TempData["Message"] = "Password changed successfully.";
+                    return RedirectToAction("Index", "Home"); // Redirect to the desired page
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "An error occurred while changing your password. Please try again later.";
+                return RedirectToAction("Error", "Home");
+            }
+        }
+
+        public ActionResult Error()
+        {
+            return View();
         }
 
     }

@@ -1,0 +1,26 @@
+﻿@*@if (TempData["Message"] != null)
+    {
+        <script src="/lib/jquery//dist/jquery.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+        <script type="text/javascript">
+            toastr.success('@TempData["Message"]');
+        </script>
+    }
+*@
+
+@*<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>*@
+
+
+@*@if (TempData["Message"] != null)
+{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            toastr.success('@TempData["Message"]', 'Success', { timeOut: 5000 });
+        });
+    </script>
+}*@
+
+

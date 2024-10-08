@@ -46,6 +46,7 @@
           <Property Name="NumberOfPages" Type="int" />
           <Property Name="ImageData" Type="varbinary(max)" />
           <Property Name="ImageMimeType" Type="nvarchar" MaxLength="250" />
+          <Property Name="isActive" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="BorrowCartItems">
           <Key>
@@ -399,6 +400,34 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Book">
+          <End Role="Books" Type="Self.Books" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="BorrowCartItems" Type="Self.BorrowCartItems" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Books">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="BorrowCartItems">
+              <PropertyRef Name="BookId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BookID">
+          <End Role="Books" Type="Self.Books" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="ShoppingCartItems" Type="Self.ShoppingCartItems" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Books">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ShoppingCartItems">
+              <PropertyRef Name="BookId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_Publisher">
           <End Role="Publishers" Type="Self.Publishers" Multiplicity="1">
             <OnDelete Action="Cascade" />
@@ -504,6 +533,14 @@
             <End Role="Authors" EntitySet="Authors" />
             <End Role="Books" EntitySet="Books" />
           </AssociationSet>
+          <AssociationSet Name="FK_Book" Association="Self.FK_Book">
+            <End Role="Books" EntitySet="Books" />
+            <End Role="BorrowCartItems" EntitySet="BorrowCartItems" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BookID" Association="Self.FK_BookID">
+            <End Role="Books" EntitySet="Books" />
+            <End Role="ShoppingCartItems" EntitySet="ShoppingCartItems" />
+          </AssociationSet>
           <AssociationSet Name="FK_Publisher" Association="Self.FK_Publisher">
             <End Role="Publishers" EntitySet="Publishers" />
             <End Role="Books" EntitySet="Books" />
@@ -548,6 +585,7 @@
           <NavigationProperty Name="ShoppingCartItems" Relationship="Self.FK__ShoppingC__BookI__4222D4EF" FromRole="Books" ToRole="ShoppingCartItems" />
           <NavigationProperty Name="Publisher" Relationship="Self.FK_Publisher" FromRole="Books" ToRole="Publishers" />
           <NavigationProperty Name="BorrowCartItems" Relationship="LeelosBookstoreEFDBModel.FK__BorrowCar__BookI__619B8048" FromRole="Book" ToRole="BorrowCartItem" />
+          <Property Name="isActive" Type="Boolean" Nullable="false" />
         </EntityType>
         <EntityType Name="Borrow">
           <Key>
@@ -994,6 +1032,7 @@
           <EntitySetMapping Name="Books">
             <EntityTypeMapping TypeName="LeelosBookstoreEFDBModel.Book">
               <MappingFragment StoreEntitySet="Books">
+                <ScalarProperty Name="isActive" ColumnName="isActive" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="Title" ColumnName="Title" />
                 <ScalarProperty Name="Description" ColumnName="Description" />

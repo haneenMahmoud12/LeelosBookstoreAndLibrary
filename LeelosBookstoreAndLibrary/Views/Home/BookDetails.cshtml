@@ -4,14 +4,21 @@
     ViewBag.Title = "BookDetails";
 }
 
-<h2>Book Details</h2>
-
 @if (TempData["Message"] != null)
 {
-    <script type="text/javascript">
-        alert('@TempData["Message"]');
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            toastr.success('@TempData["Message"]', 'Success', { timeOut: 5000 });
+        });
     </script>
 }
+
+@*<partial name="_Notification" />
+*@
+<h2>Book Details</h2>
+
 
 @if (!ViewData.ModelState.IsValid)
 {
@@ -81,24 +88,6 @@
     </dl>
 </div>
 
-<!-- Modal HTML (keep it at the bottom for better DOM availability) -->
-@*
-    <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="cartModalLabel">Cart Update</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    @TempData["Message"]
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>*@
 
 <!-- Admin Actions -->
 <p>

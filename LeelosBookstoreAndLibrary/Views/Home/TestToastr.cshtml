@@ -1,0 +1,29 @@
+﻿@{
+    ViewBag.Title = "Test Toastr";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Toastr</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet">
+</head>
+<body>
+    <h1>Test Toastr Notification</h1>
+
+    <button id="testNotification">Show Notification</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $("#testNotification").click(function () {
+                toastr.success('This is a test notification!', 'Success', { timeOut: 5000 });
+            });
+        });
+    </script>
+</body>
+</html>

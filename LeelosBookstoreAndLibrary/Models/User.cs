@@ -11,9 +11,13 @@ namespace LeelosBookstoreAndLibrary.Models
         public int Id { get; set; }
 
         [Required(ErrorMessage = "First Name is required")]
+        [StringLength(30, ErrorMessage = "Name cannot be longer than 30 characters")]
+        [RegularExpression(@"^[A-Za-z]+$", ErrorMessage = "First name can only contain letters.")]
         public string FirstName { get; set; }
 
         [Required(ErrorMessage = "Last Name is required")]
+        [StringLength(30, ErrorMessage = "Name cannot be longer than 30 characters")]
+        [RegularExpression(@"^[A-Za-z]+$", ErrorMessage = "First name can only contain letters.")]
         public string LastName { get; set; }
 
         [Required(ErrorMessage = "Email is required")]

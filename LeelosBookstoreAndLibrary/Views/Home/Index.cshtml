@@ -4,7 +4,44 @@
     ViewBag.Title = "Books Index";
 }
 
-<h2>Books Index</h2>
+<h2>Books</h2>
+
+@if (TempData["Message"] != null)
+{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            toastr.success('@TempData["Message"]', 'Success', { timeOut: 5000 });
+        });
+    </script>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            toastr.error('@TempData["ErrorMessage"]', 'Error', { timeOut: 5000 });
+        });
+    </script>
+}
+
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <p>@error.ErrorMessage</p>
+        }
+    </div>
+}
+
+@*<p>
+        @Html.ActionLink("Go to Toastr Test", "TestToastr", "Home", null, new { @class = "btn btn-primary" })
+    </p>*@
 
 <!-- Search form -->
 <form method="get" action="@Url.Action("Index")">
@@ -40,18 +77,53 @@
                 <td>@book.Price.ToString("F2")</td>
                 <td>
                     @Html.ActionLink("Details", "BookDetails", new { id = book.Id })
+
+                    @*Admin Actions*@
+
                     @if (!string.IsNullOrEmpty(Session["UserId"]?.ToString()) && (int)Session["UserRole"] == 2)
                     {
                         <br />
                         @Html.ActionLink("Edit", "EditBook", new { id = book.Id })
                         <br />
-                        @Html.ActionLink("Delete", "Delete", new { id = book.Id })
+                        <a href="#" onclick="confirmDelete(@book.Id); return false;">Delete</a>
                     }
                 </td>
             </tr>
         }
     </tbody>
 </table>
+
+<!-- Sorting Dropdown -->
+<form method="get" action="@Url.Action("Index")" class="form-inline">
+    <label for="sortOrder">Sort by:</label>
+    <select id="sortOrder" name="sortOrder" onchange="this.form.submit()">
+        <option value="" @(string.IsNullOrEmpty(Model.SortOrder) ? "selected" : "")>Default (Title)</option>
+        <option value="price" @(Model.SortOrder == "price" ? "selected" : "")>Price</option>
+        <option value="author" @(Model.SortOrder == "author" ? "selected" : "")>Author</option>
+        <option value="genre" @(Model.SortOrder == "genre" ? "selected" : "")>Genre</option>
+    </select>
+</form>
+
+<!-- Confirm Delete -->
+<script type="text/javascript">
+    function confirmDelete(bookId) {
+        if (confirm("Are you sure you want to delete this book?")) {
+            const form = document.createElement("form");
+            form.method = "post";
+            form.action = '@Url.Action("DeleteBook")';
+            @*@Html.AntiForgeryToken();*@
+
+            const hiddenField = document.createElement("input");
+            hiddenField.type = "hidden";
+            hiddenField.name = "id";
+            hiddenField.value = bookId;
+
+            form.appendChild(hiddenField);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+</script>
 
 <!-- Pagination -->
 @if (Model.TotalBooksCount > Model.PageSize)
@@ -65,3 +137,15 @@
         }
     </ul>
 }
+
+
+<!-- Page Size Dropdown -->
+<form method="get" action="@Url.Action("Index")" class="form-inline">
+    <label for="pageSize">Items per page:</label>
+    <select id="pageSize" name="pageSize" onchange="this.form.submit()">
+        <option value="4" @(Model.PageSize == 4 ? "selected" : "")>4</option>
+        <option value="10" @(Model.PageSize == 10 ? "selected" : "")>10</option>
+        <option value="20" @(Model.PageSize == 20 ? "selected" : "")>20</option>
+        <option value="100" @(Model.PageSize == 100 ? "selected" : "")>100</option>
+    </select>
+</form>

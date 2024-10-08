@@ -117,6 +117,9 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="Toaster.NET, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Toaster.NET.1.0.0\lib\net40\Toaster.NET.dll</HintPath>
+    </Reference>
     <Reference Include="WebGrease">
       <Private>True</Private>
       <HintPath>..\packages\WebGrease.1.6.0\lib\WebGrease.dll</HintPath>
@@ -152,6 +155,7 @@
     <Compile Include="Models\BorrowCart.cs" />
     <Compile Include="Models\BorrowCartItem.cs" />
     <Compile Include="Models\BorrowCheckoutViewModel.cs" />
+    <Compile Include="Models\ChangePasswordViewModel.cs" />
     <Compile Include="Models\CheckoutViewModel.cs" />
     <Compile Include="Models\MappingProfile.cs" />
     <Compile Include="Models\Order.cs" />
@@ -225,6 +229,10 @@
     <Content Include="Views\Order\_BuyCheckout.cshtml" />
     <Content Include="Views\Order\_BorrowCheckout.cshtml" />
     <Content Include="Views\Order\BorrowCheckout.cshtml" />
+    <Content Include="Views\Shared\_Notification.cshtml" />
+    <Content Include="Views\Home\TestToastr.cshtml" />
+    <Content Include="Views\Account\Error.cshtml" />
+    <Content Include="Views\Account\ChangePassword.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -12,6 +12,7 @@ namespace LeelosBookstoreAndLibrary.Models
         public int PageSize { get; set; }
         public int TotalBooksCount { get; set; }
         public string SearchQuery { get; set; }
+        public string SortOrder { get; set; }
     }
 
 }
