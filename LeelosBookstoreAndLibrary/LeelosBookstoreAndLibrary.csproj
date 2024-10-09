@@ -237,6 +237,12 @@
     <Content Include="Views\Admin\AddAuthor.cshtml" />
     <Content Include="Views\Admin\AddPublisher.cshtml" />
     <Content Include="Views\Admin\ViewUsers.cshtml" />
+    <Content Include="Views\Admin\ViewAuthors.cshtml" />
+    <Content Include="Views\Admin\ViewPublishers.cshtml" />
+    <Content Include="Views\Admin\AuthorDetails.cshtml" />
+    <Content Include="Views\Admin\EditAuthor.cshtml" />
+    <Content Include="Views\Admin\PublisherDetails.cshtml" />
+    <Content Include="Views\Admin\EditPublisher.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

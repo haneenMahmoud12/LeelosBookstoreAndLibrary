@@ -18,7 +18,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
             try
             {
                 // Filter by search query IF provided
-                var booksQuery = db.Books.Include("Author").Include("Publisher").AsQueryable();
+                var booksQuery = db.Books.Include("Author").Include("Publisher").Where(b => b.isActive == true).AsQueryable();
 
                 if (!string.IsNullOrEmpty(searchQuery))
                 {
@@ -49,7 +49,6 @@ namespace LeelosBookstoreAndLibrary.Controllers
                 var books = booksQuery
                                       .Skip((page - 1) * pageSize)
                                       .Take(pageSize)
-                                      .Where(b => b.isActive==true)
                                       .Select(book => new Models.Book
                                       {
                                           Id = book.Id,
@@ -98,6 +97,19 @@ namespace LeelosBookstoreAndLibrary.Controllers
         }
         public ActionResult AddBook()
         {
+            LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities();
+
+            var authors = db.Authors.Select(a => new
+            {
+                Id = a.Id,
+                Name = a.FirstName + " " + a.LastName
+            }).ToList();
+            var publishers = db.Publishers.ToList();
+
+
+            ViewBag.Authors = new SelectList(authors, "Id", "Name");
+
+            ViewBag.Publishers = new SelectList(publishers, "Id", "Name");
             Models.Book bookModel = new Models.Book();
             return View(bookModel);
         }
@@ -107,6 +119,15 @@ namespace LeelosBookstoreAndLibrary.Controllers
         {
             using (LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities())
             {
+                if (!ModelState.IsValid)
+                {
+                    // Reload the authors and publishers in case the model state is invalid
+                    ViewBag.Authors = new SelectList(db.Authors.ToList(), "Id", "Name");
+                    ViewBag.Publishers = new SelectList(db.Publishers.ToList(), "Id", "Name");
+
+                    // Return the view with validation errors
+                    return View(bookModel);
+                }
                 try
                 {
                     Book book = new Book
@@ -135,8 +156,11 @@ namespace LeelosBookstoreAndLibrary.Controllers
                 catch (Exception e)
                 {
                     ModelState.AddModelError("", e.Message);
-                    TempData["ErrorMessage"] = e.Message;
-                    return RedirectToAction("Error", "Home");
+                    ViewBag.Authors = new SelectList(db.Authors.ToList(), "Id", "Name");
+                    ViewBag.Publishers = new SelectList(db.Publishers.ToList(), "Id", "Name");
+
+                    TempData["ErrorMessage"] = "An error occurred: " + e.Message;
+                    return View(bookModel);
                 }
             }
                 //return View(bookModel);
@@ -150,6 +174,17 @@ namespace LeelosBookstoreAndLibrary.Controllers
                 try
                 {
                     Book book = db.Books.FirstOrDefault(x => x.Id == id && x.isActive==true);
+                    var authors = db.Authors.Select(a => new
+                    {
+                        Id = a.Id,
+                        Name = a.FirstName + " " + a.LastName
+                    }).ToList();
+                    var publishers = db.Publishers.ToList();
+
+
+                    ViewBag.Authors = new SelectList(authors, "Id", "Name");
+
+                    ViewBag.Publishers = new SelectList(publishers, "Id", "Name");
                     if (book != null)
                     {
                         bookModel = new Models.Book
@@ -174,7 +209,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
                 {
                     ModelState.AddModelError("", e.Message);
                     TempData["ErrorMessage"] = e.Message;
-                    return RedirectToAction("Error", "Home");
+                    return RedirectToAction("Error", "Account");
                 }
             }
             return View(bookModel);
@@ -210,6 +245,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
                     db.Entry(book).State = System.Data.Entity.EntityState.Modified;
                     db.SaveChanges();
 
+                    TempData["Message"] = "Changes saved successfully.";
                     return RedirectToAction("Index");
                 }
                 catch (Exception e)

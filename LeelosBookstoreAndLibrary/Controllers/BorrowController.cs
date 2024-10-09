@@ -15,11 +15,13 @@ namespace LeelosBookstoreAndLibrary.Controllers
         {
             try
             {
-                var userId = Session["UserId"] as int?;
-                if (!userId.HasValue)
+                if (Session["UserId"] == null)
                 {
+                    TempData["ErrorMessage"] = "Please login first to borrow book.";
                     return RedirectToAction("Login", "Account");
                 }
+
+                var userId = Session["UserId"] as int?;
 
                 // Find or create the borrow cart for the user
                 var borrowCart = db.BorrowCarts.FirstOrDefault(c => c.UserId == userId.Value);
@@ -38,7 +40,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
                     db.BorrowCartItems.Add(newItem);
                     db.SaveChanges();
                 }
-
+                TempData["Message"] = "Book added to cart!";
                 return RedirectToAction("ViewBorrowCart");
             }
             catch (Exception e)
@@ -103,6 +105,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
                 {
                     db.BorrowCartItems.Remove(item);
                     db.SaveChanges();
+                    TempData["Message"] = "Book removed successfully!";
                 }
 
                 return RedirectToAction("ViewBorrowCart");
@@ -195,7 +198,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
             {
                 ModelState.AddModelError("", e.Message);
                 TempData["ErrorMessage"] = e.Message;
-                return RedirectToAction("Error", "Home");
+                return RedirectToAction("Error", "Account");
             }
         }
 
@@ -234,6 +237,8 @@ namespace LeelosBookstoreAndLibrary.Controllers
                 db.Entry(book).State = System.Data.Entity.EntityState.Modified;
                 db.SaveChanges();
 
+                TempData["Message"] = "Book returned successfully!";
+
                 var borrowedBooks = db.Borrows
                     .Where(b => b.UserId == userId.Value && !b.IsReturned)
                     .Select(b => new Models.Borrow
@@ -253,13 +258,13 @@ namespace LeelosBookstoreAndLibrary.Controllers
                         },
                     }).ToList();
 
-                return PartialView("_BorrowedBooks", borrowedBooks);
+                return RedirectToAction("ViewAccount", "Account");
             }
             catch (Exception e)
             {
                 ModelState.AddModelError("", e.Message);
                 TempData["ErrorMessage"] = e.Message;
-                return RedirectToAction("Error", "Home");
+                return RedirectToAction("Error", "Account");
             }
         }
 

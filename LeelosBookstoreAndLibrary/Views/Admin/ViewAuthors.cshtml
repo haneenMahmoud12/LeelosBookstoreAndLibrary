@@ -1,6 +1,10 @@
-﻿@model LeelosBookstoreAndLibrary.Models.Publisher
+﻿@model IEnumerable<LeelosBookstoreAndLibrary.Models.Author>
 
-<h2>Add Publisher</h2>
+@{
+    ViewBag.Title = "ViewAuthors";
+}
+
+<h2>ViewAuthors</h2>
 
 @if (TempData["Message"] != null)
 {
@@ -36,35 +40,41 @@
 }
 
 
-@using (Html.BeginForm())
-{
-    @Html.AntiForgeryToken()
 
-    <div class="form-group">
-        @Html.LabelFor(model => model.Name)
-        @Html.TextBoxFor(model => model.Name, new { @class = "form-control" })
-        @Html.ValidationMessageFor(model => model.Name)
-    </div>
+@Html.ActionLink("Add Author", "AddAuthor")
 
-    <div class="form-group">
-        @Html.LabelFor(model => model.Address)
-        @Html.TextBoxFor(model => model.Address, new { @class = "form-control" })
-        @Html.ValidationMessageFor(model => model.Address)
-    </div>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.FirstName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.LastName)
+        </th>
+        @*<th>
+                @Html.DisplayNameFor(model => model.Biography)
+            </th>*@
+        <th></th>
+    </tr>
 
-    <div class="form-group">
-        @Html.LabelFor(model => model.PhoneNumber)
-        @Html.TextBoxFor(model => model.PhoneNumber, new { @class = "form-control" })
-    </div>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.FirstName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LastName)
+            </td>
+            @*<td>
+                    @Html.DisplayFor(modelItem => item.Biography)
+                </td>*@
+            <td>
+                @*@Html.ActionLink("Edit", "EditAuthor", new { id = item.Id }) |*@
+                @Html.ActionLink("Details", "AuthorDetails", new { id = item.Id })
+                @*@Html.ActionLink("Delete", "DeleteAuthor", new { id = item.Id })*@
+            </td>
+        </tr>
+    }
 
-    <div class="form-group">
-        @Html.LabelFor(model => model.Email)
-        @Html.TextBoxFor(model => model.Email, new { @class = "form-control" })
-    </div>
-
-    <button type="submit" class="btn btn-primary">Add Publisher</button>
-}
-
-<div>
-    @Html.ActionLink("Back to List", "ViewPublishers")
-</div>
+</table>

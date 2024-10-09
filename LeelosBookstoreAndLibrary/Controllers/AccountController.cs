@@ -49,7 +49,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
                 {
                     ModelState.AddModelError("", e.Message);
                     TempData["ErrorMessage"] = e.Message;
-                    return RedirectToAction("Error", "Home");
+                    return RedirectToAction("Error", "Account");
                 }
             }
 
@@ -94,7 +94,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
             {
                 ModelState.AddModelError("", e.Message);
                 TempData["ErrorMessage"] = e.Message;
-                return RedirectToAction("Error", "Home");
+                return RedirectToAction("Error", "Account");
             }
             return View(user);
         }
@@ -183,7 +183,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
 
                 TempData["ErrorMessage"] = "An error occurred while retrieving your account information. Please try again later.";
 
-                return RedirectToAction("Error", "Home");
+                return RedirectToAction("Error", "Account");
             }
         }
 
@@ -310,8 +310,11 @@ namespace LeelosBookstoreAndLibrary.Controllers
                     FirstName = user.FirstName,
                     LastName = user.LastName,
                     Email = user.Email,
-                    DateOfBirth = (System.DateTime)user.DateOfBirth,
-                    Address = new ShippingInfo
+                    DateOfBirth = (System.DateTime)user.DateOfBirth
+                };
+                if (user.RoleId == 1)
+                {
+                    model.Address = new ShippingInfo
                     {
                         Address = address.Address1,
                         City = address.City,
@@ -319,8 +322,8 @@ namespace LeelosBookstoreAndLibrary.Controllers
                         Governorate = address.Governorate,
                         ZipCode = address.ZipCode,
                         PhoneNumber = address.PhoneNumber
-                    }
-                };
+                    };
+                }
 
                 return View(model);
             }
@@ -328,7 +331,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
             {
                 TempData["ErrorMessage"] = e.Message;
 
-                return RedirectToAction("Error", "Home"); 
+                return RedirectToAction("Error", "Account"); 
             }
         }
 
@@ -382,7 +385,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
 
                     // Update session with new username
                     Session["UserName"] = $"{userToUpdate.FirstName} {userToUpdate.LastName}";
-
+                    TempData["Message"] = "Changes saved successfully.";
                     return RedirectToAction("ViewAccount");
                 }
             }
@@ -390,6 +393,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
             {
                 // Log the exception (consider using a logging framework)
                 ViewBag.ErrorMessages = new List<string> { "An error occurred while updating your account. Please try again later." };
+                TempData["ErrorMessage"] = "An error occurred while changing your password. Please try again later.";
                 return View(user); // Return the view with an error message
             }
         }
@@ -447,7 +451,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
             catch (Exception ex)
             {
                 TempData["ErrorMessage"] = "An error occurred while changing your password. Please try again later.";
-                return RedirectToAction("Error", "Home");
+                return RedirectToAction("Error", "Account");
             }
         }
 

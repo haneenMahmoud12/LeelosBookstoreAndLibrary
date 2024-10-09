@@ -84,6 +84,7 @@ namespace LeelosBookstoreAndLibrary.Controllers
                     }
 
                     db.SaveChanges();
+                    TempData["Message"] = "Changes saved successfully!";
                 }
                 catch (Exception e)
                 {

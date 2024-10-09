@@ -11,13 +11,32 @@ namespace LeelosBookstoreAndLibrary.Controllers
     {
         private LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities();
 
-        // Add Author GET
+        public ActionResult ViewAuthors()
+        {
+            try
+            {
+                var authors = db.Authors.ToList();
+                var authorsModelList = new List<Models.Author>();
+                foreach (var author in authors)
+                {
+                    var authorModel = MapperInstance.Mapper.Map<Models.Author>(author);
+                    authorsModelList.Add(authorModel);
+                }
+
+                return View(authorsModelList);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "An error occurred while retrieving users: " + ex.Message;
+                return RedirectToAction("Error", "Account");
+            }
+        }
+
         public ActionResult AddAuthor()
         {
             return View();
         }
 
-        // Add Author POST
         [HttpPost]
         public ActionResult AddAuthor(Models.Author author)
         {
@@ -41,13 +60,111 @@ namespace LeelosBookstoreAndLibrary.Controllers
             }
         }
 
-        // Add Publisher GET
+        public ActionResult AuthorDetails(int id)
+        {
+            Models.Author authorModel = new Models.Author();
+            using (LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities())
+            {
+                try
+                {
+                    DataLayer.Author author = db.Authors.FirstOrDefault(x => x.Id == id);
+                    if (author != null)
+                    {
+                        authorModel = MapperInstance.Mapper.Map<Models.Author>(author);
+                    }
+                }
+                catch (Exception e)
+                {
+                    ModelState.AddModelError("", e.Message);
+                    TempData["ErrorMessage"] = e.Message;
+                    return RedirectToAction("Error", "Home");
+                }
+            }
+            return View(authorModel);
+        }
+
+        public ActionResult EditAuthor(int id)
+        {
+            Models.Author authorModel = new Models.Author();
+            using (LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities())
+            {
+                try
+                {
+                    DataLayer.Author author = db.Authors.FirstOrDefault(x => x.Id == id);
+                    if (author != null)
+                    {
+                        authorModel = MapperInstance.Mapper.Map<Models.Author>(author);
+                    }
+                }
+                catch (Exception e)
+                {
+                    ModelState.AddModelError("", e.Message);
+                    TempData["ErrorMessage"] = e.Message;
+                    return RedirectToAction("Error", "Account");
+                }
+            }
+            return View(authorModel);
+        }
+
+        [HttpPost]
+        public ActionResult EditAuthor(Models.Author authorModel)
+        {
+            using (LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities())
+            {
+                try
+                {
+                    DataLayer.Author author = db.Authors.FirstOrDefault(x => x.Id == authorModel.Id);
+
+                    if (author == null)
+                    {
+                        return HttpNotFound();
+                    }
+
+                    author.FirstName = authorModel.FirstName;
+                    author.LastName = authorModel.LastName;
+                    author.Biography = authorModel.Biography;
+                    author.ImageMimeType = authorModel.ImageMimeType;
+                    author.AuthorImage = authorModel.AuthorImage;
+
+                    db.Entry(author).State = System.Data.Entity.EntityState.Modified;
+                    db.SaveChanges();
+
+                    TempData["Message"] = "Changes saved successfully.";
+                    return RedirectToAction("AuthorDetails", new { id = author.Id });
+                }
+                catch (Exception e)
+                {
+                    ModelState.AddModelError("", e.Message);
+                    TempData["ErrorMessage"] = e.Message;
+                    return RedirectToAction("Error", "Account");
+                }
+            }
+        }
+        public ActionResult ViewPublishers()
+        {
+            try
+            {
+                var publishers = db.Publishers.ToList();
+                var publishersModelList = new List<Models.Publisher>();
+                foreach (var publisher in publishers)
+                {
+                    var publisherModel = MapperInstance.Mapper.Map<Models.Publisher>(publisher);
+                    publishersModelList.Add(publisherModel);
+                }
+
+                return View(publishersModelList);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "An error occurred while retrieving users: " + ex.Message;
+                return RedirectToAction("Error", "Account");
+            }
+        }
         public ActionResult AddPublisher()
         {
             return View();
         }
 
-        // Add Publisher POST
         [HttpPost]
         public ActionResult AddPublisher(Models.Publisher publisher)
         {
@@ -71,7 +188,84 @@ namespace LeelosBookstoreAndLibrary.Controllers
             }
         }
 
-        // View Users GET
+        public ActionResult PublisherDetails(int id)
+        {
+            Models.Publisher publisherModel = new Models.Publisher();
+            using (LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities())
+            {
+                try
+                {
+                    DataLayer.Publisher publisher = db.Publishers.FirstOrDefault(x => x.Id == id);
+                    if (publisher != null)
+                    {
+                        publisherModel = MapperInstance.Mapper.Map<Models.Publisher>(publisher);
+                    }
+                }
+                catch (Exception e)
+                {
+                    ModelState.AddModelError("", e.Message);
+                    TempData["ErrorMessage"] = e.Message;
+                    return RedirectToAction("Error", "Home");
+                }
+            }
+            return View(publisherModel);
+        }
+
+        public ActionResult EditPublisher(int id)
+        {
+            Models.Publisher publisherModel = new Models.Publisher();
+            using (LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities())
+            {
+                try
+                {
+                    DataLayer.Publisher publisher = db.Publishers.FirstOrDefault(x => x.Id == id);
+                    if (publisher != null)
+                    {
+                        publisherModel = MapperInstance.Mapper.Map<Models.Publisher>(publisher);
+                    }
+                }
+                catch (Exception e)
+                {
+                    ModelState.AddModelError("", e.Message);
+                    TempData["ErrorMessage"] = e.Message;
+                    return RedirectToAction("Error", "Account");
+                }
+            }
+            return View(publisherModel);
+        }
+
+        [HttpPost]
+        public ActionResult EditPublisher(Models.Publisher publisherModel)
+        {
+            using (LeelosBookstoreEFDBEntities db = new LeelosBookstoreEFDBEntities())
+            {
+                try
+                {
+                    DataLayer.Publisher publisher = db.Publishers.FirstOrDefault(x => x.Id == publisherModel.Id);
+
+                    if (publisher == null)
+                    {
+                        return HttpNotFound();
+                    }
+
+                    publisher.Name = publisherModel.Name;
+                    publisher.Email = publisherModel.Email;
+                    publisher.Address = publisherModel.Address;
+                    publisher.PhoneNumber = publisherModel.PhoneNumber;
+
+                    db.Entry(publisher).State = System.Data.Entity.EntityState.Modified;
+                    db.SaveChanges();
+                    TempData["Message"] = "Changes saved successfully.";
+                    return RedirectToAction("PublisherDetails", new { id = publisher.Id });
+                }
+                catch (Exception e)
+                {
+                    ModelState.AddModelError("", e.Message);
+                    TempData["ErrorMessage"] = e.Message;
+                    return RedirectToAction("Error", "Account");
+                }
+            }
+        }
         public ActionResult ViewUsers()
         {
             try
@@ -93,7 +287,6 @@ namespace LeelosBookstoreAndLibrary.Controllers
             }
         }
 
-        // Change User Role POST
         [HttpPost]
         public ActionResult ChangeUserRole(int userId, int newRoleId)
         {

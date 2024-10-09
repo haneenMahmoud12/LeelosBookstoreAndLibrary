@@ -3,7 +3,41 @@
     ViewBag.Title = "OrderSuccess";
 }
 
+@if (TempData["Message"] != null)
+{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet" />
+
+    <style>
+        /* Custom style to make toastr success green */
+        .toast-success {
+            background-color: #28a745 !important; /* Bootstrap green */
+        }
+    </style>
+
+    <script>
+        $(document).ready(function () {
+            toastr.success('@TempData["Message"]', 'Success', { timeOut: 5000 });
+        });
+    </script>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet" />
+
+    <script>
+        $(document).ready(function () {
+            toastr.error('@TempData["ErrorMessage"]', 'Error', { timeOut: 5000 });
+        });
+    </script>
+}
+
+
 <h2>Order Confirmed!</h2>
 
-@Html.ActionLink("Back to Home Page","Index","Home")
+@Html.ActionLink("Back to Home Page", "Index", "Home")
 

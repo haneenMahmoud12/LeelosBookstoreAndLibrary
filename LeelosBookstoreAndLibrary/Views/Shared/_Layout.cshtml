@@ -7,54 +7,48 @@
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
 </head>
 <body>
-    <div class="navbar navbar-inverse navbar-fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="@Url.Action("Index", "Home")" style="display: flex; align-items: center;">
-                    <img src="~/Content/logo.png" alt="Logo" style="height: 40px; margin-right: 10px;" />
-                    Leelo's Bookstore and Library
-                </a>
-            </div>
-            <div class="collapse navbar-collapse">
-                <ul class="nav navbar-nav navbar-right">
-                    @*  <li>@Html.ActionLink("Home", "Index", "Home")</li>*@
-                    @* <li>@Html.ActionLink("About", "About", "Home")</li>*@
-                    @*<li>@Html.ActionLink("Contact", "Contact", "Home")</li>*@
-
-                    <!-- Account-related links -->
+            <a class="navbar-brand" href="@Url.Action("Index", "Home")" style="display: flex; align-items: center;">
+                <img src="~/Content/logo.png" alt="Logo" style="height: 40px; margin-right: 10px;" />
+                Leelo's Bookstore and Library
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
                     @if (!string.IsNullOrEmpty(Session["UserId"]?.ToString()))
                     {
-                        <li>@Html.ActionLink("Account", "ViewAccount", "Account")</li>
-
-                        <li>@Html.ActionLink("Logout", "Logout", "Account")</li>
-                        if (Session["UserId"].Equals("1"))
+                        <li class="nav-item">@Html.ActionLink("Account", "ViewAccount", "Account", new { }, new { @class = "nav-link" })</li>
+                        <li class="nav-item">@Html.ActionLink("Logout", "Logout", "Account", new { }, new { @class = "nav-link" })</li>
+                        if ((int)Session["UserId"]==1)
                         {
-                            <li>@Html.ActionLink("Shopping Cart", "ViewCart", "ShoppingCart")</li>
-                            <li>@Html.ActionLink("Borrow Cart", "ViewBorrowCart", "Borrow")</li>
+                            <li class="nav-item">@Html.ActionLink("Shopping Cart", "ViewCart", "ShoppingCart", new { }, new { @class = "nav-link" })</li>
+                            <li class="nav-item">@Html.ActionLink("Borrow Cart", "ViewBorrowCart", "Borrow", new { }, new { @class = "nav-link" })</li>
                         }
                         else
                         {
-                            @*<li>@Html.ActionLink("Authors", "ViewAuthors", "Admin")</li>
-                            <li>@Html.ActionLink("Publishers", "ViewPublishers", "Admin")</li>*@
-                            <li>@Html.ActionLink("Users", "ViewUsers", "Admin")</li>
+                            <li class="nav-item">@Html.ActionLink("Authors", "ViewAuthors", "Admin", new { }, new { @class = "nav-link" })</li>
+                            <li class="nav-item">@Html.ActionLink("Publishers", "ViewPublishers", "Admin", new { }, new { @class = "nav-link" })</li>
+                            <li class="nav-item">@Html.ActionLink("Users", "ViewUsers", "Admin", new { }, new { @class = "nav-link" })</li>
                         }
                     }
                     else
                     {
-                        <li>@Html.ActionLink("Register", "Register", "Account")</li>
-                        <li>@Html.ActionLink("Login", "Login", "Account")</li>
+                        <li class="nav-item">@Html.ActionLink("Register", "Register", "Account", new { }, new { @class = "nav-link" })</li>
+                        <li class="nav-item">@Html.ActionLink("Login", "Login", "Account", new { }, new { @class = "nav-link" })</li>
                     }
                 </ul>
             </div>
         </div>
-    </div>
+    </nav>
+    <br />
     <div class="container body-content">
         @RenderBody()
         <hr />
@@ -69,6 +63,10 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <!-- Bootstrap JS and Popper.js (necessary for Bootstrap 5 modal) -->
+    <script src="https://cdn.jsdelivr.net/npm/popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+
 
 </body>
 </html>

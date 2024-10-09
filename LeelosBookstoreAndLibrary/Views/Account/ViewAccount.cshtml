@@ -4,6 +4,40 @@
     ViewBag.Title = "Your Account";
 }
 
+@if (TempData["Message"] != null)
+{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet" />
+
+    <style>
+        /* Custom style to make toastr success green */
+        .toast-success {
+            background-color: #28a745 !important; /* Bootstrap green */
+        }
+    </style>
+
+    <script>
+        $(document).ready(function () {
+            toastr.success('@TempData["Message"]', 'Success', { timeOut: 5000 });
+        });
+    </script>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet" />
+
+    <script>
+        $(document).ready(function () {
+            toastr.error('@TempData["ErrorMessage"]', 'Error', { timeOut: 5000 });
+        });
+    </script>
+}
+
+
 @if (!ViewData.ModelState.IsValid)
 {
     <div class="alert alert-danger">
@@ -32,11 +66,13 @@
         <dt>Date of Birth:</dt>
         <dd>@Html.DisplayFor(model => model.DateOfBirth)</dd>
 
-        <dt>Address:</dt>
-        <dd>@Html.DisplayFor(model => model.Address.Address), @Html.DisplayFor(model => model.Address.City), @Html.DisplayFor(model => model.Address.Governorate), @Html.DisplayFor(model => model.Address.Country).</dd>
-
-        <dt>Phone number:</dt>
-        <dd>@Html.DisplayFor(model => model.Address.PhoneNumber)</dd>
+        @if ((int)Session["UserId"] == 1)
+        {
+            <dt>Address:</dt>
+            <dd>@Html.DisplayFor(model => model.Address.Address), @Html.DisplayFor(model => model.Address.City), @Html.DisplayFor(model => model.Address.Governorate), @Html.DisplayFor(model => model.Address.Country).</dd>
+            <dt>Phone number:</dt>
+            <dd>@Html.DisplayFor(model => model.Address.PhoneNumber)</dd>
+        }
     </dl>
     <hr />
 
@@ -44,51 +80,88 @@
         @Html.ActionLink("Edit Account", "EditAccount", new { id = Model.Id })
     </p>
 
-    <h3>Your Orders</h3>
-
-    @foreach (var order in Model.Orders)
+    @if ((int)Session["UserId"] == 1)
     {
-        <div>
-            <h4>Order #@order.Id - @order.OrderDate.ToShortDateString()</h4>
-            <p>Status: @order.Status</p>
-            <p>Total Price: @order.TotalPrice.ToString("F2")</p>
 
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Book Title</th>
-                        <th>Quantity</th>
-                        <th>Price</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in order.OrderItems)
-                    {
+        <h3>Your Orders</h3>
+
+        foreach (var order in Model.Orders)
+        {
+            <div>
+                <h4>Order #@order.Id - @order.OrderDate.ToShortDateString()</h4>
+                <p>Status: @order.Status</p>
+                <p>Total Price: @order.TotalPrice.ToString("F2")</p>
+
+                <table class="table">
+                    <thead>
                         <tr>
-                            <td>@item.Book.Title</td>
-                            <td>@item.Quantity</td>
-                            <td>@item.Price.ToString("F2")</td>
+                            <th>Book Title</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
                         </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in order.OrderItems)
+                        {
+                            <tr>
+                                <td>@item.Book.Title</td>
+                                <td>@item.Quantity</td>
+                                <td>@item.Price.ToString("F2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                @if (order.Status != "Received")
+                {
+                    @Html.ActionLink("Cancel Order", "CancelOrder", "Order", new { id = order.Id }, null)
+                }
+            </div>
+            <hr />
+        }
+
+
+        if (Model.Orders.Count > 0)
+        {
+            <div>
+                <ul class="pagination">
+                    @for (int i = 1; i <= Math.Ceiling((double)Model.TotalOrders / Model.OrderPageSize); i++)
+                    {
+                        <li class="@(i == Model.OrderPage ? "active" : "")">
+                            <a href="@Url.Action("ViewAccount", new { orderPage = i, orderPageSize = Model.OrderPageSize, borrowPage = Model.BorrowPage })">@i</a>
+                        </li>
                     }
-                </tbody>
-            </table>
-            @if (order.Status != "Received")
-            {
-                @Html.ActionLink("Cancel Order", "CancelOrder", "Order", new { id = order.Id }, null)
-            }
-        </div>
-        <hr />
+                </ul>
+            </div>
+
+            <!-- Page Size Dropdown -->
+            <form method="get" action="@Url.Action("ViewAccount")" class="form-inline">
+                <label for="orderPageSize">Items per page:</label>
+                <select id="orderPageSize" name="orderPageSize" onchange="this.form.submit()">
+                    <option value="4" @(Model.OrderPageSize == 4 ? "selected" : "")>4</option>
+                    <option value="10" @(Model.OrderPageSize == 10 ? "selected" : "")>10</option>
+                    <option value="50" @(Model.OrderPageSize == 50 ? "selected" : "")>50</option>
+                    <option value="100" @(Model.OrderPageSize == 100 ? "selected" : "")>100</option>
+                </select>
+            </form>
+        }
+
     }
+</div>
 
+@if ((int)Session["UserId"] == 1)
+{
+    <!-- Partial for Borrowed Books -->
+    @Html.Partial("~/Views/Borrow/_BorrowedBooks.cshtml", Model.BorrowedBooks)
 
-    @if (Model.Orders.Count > 0)
+    <!-- Borrowed Books Pagination -->
+    if (Model.BorrowedBooks != null && Model.BorrowedBooks.Any())
     {
         <div>
             <ul class="pagination">
-                @for (int i = 1; i <= Math.Ceiling((double)Model.TotalOrders / Model.OrderPageSize); i++)
+                @for (int i = 1; i <= Math.Ceiling((double)Model.TotalBorrowedBooks / Model.BorrowPageSize); i++)
                 {
-                    <li class="@(i == Model.OrderPage ? "active" : "")">
-                        <a href="@Url.Action("ViewAccount", new { orderPage = i, orderPageSize = Model.OrderPageSize, borrowPage = Model.BorrowPage })">@i</a>
+                    <li class="@(i == Model.BorrowPage ? "active" : "")">
+                        <a href="@Url.Action("ViewAccount", new { orderPage = Model.OrderPage, borrowPage = i, borrowPageSize = Model.BorrowPageSize })">@i</a>
                     </li>
                 }
             </ul>
@@ -96,44 +169,13 @@
 
         <!-- Page Size Dropdown -->
         <form method="get" action="@Url.Action("ViewAccount")" class="form-inline">
-            <label for="orderPageSize">Items per page:</label>
-            <select id="orderPageSize" name="orderPageSize" onchange="this.form.submit()">
-                <option value="4" @(Model.OrderPageSize == 4 ? "selected" : "")>4</option>
-                <option value="10" @(Model.OrderPageSize == 10 ? "selected" : "")>10</option>
-                <option value="50" @(Model.OrderPageSize == 50 ? "selected" : "")>50</option>
-                <option value="100" @(Model.OrderPageSize == 100 ? "selected" : "")>100</option>
+            <label for="BorrowPageSize">Items per page:</label>
+            <select id="BorrowPageSize" name="BorrowPageSize" onchange="this.form.submit()">
+                <option value="4" @(Model.BorrowPageSize == 4 ? "selected" : "")>4</option>
+                <option value="10" @(Model.BorrowPageSize == 10 ? "selected" : "")>10</option>
+                <option value="50" @(Model.BorrowPageSize == 50 ? "selected" : "")>50</option>
+                <option value="100" @(Model.BorrowPageSize == 100 ? "selected" : "")>100</option>
             </select>
         </form>
     }
-
-
-</div>
-
-<!-- Partial for Borrowed Books -->
-@Html.Partial("~/Views/Borrow/_BorrowedBooks.cshtml", Model.BorrowedBooks)
-
-<!-- Borrowed Books Pagination -->
-@if (Model.BorrowedBooks != null && Model.BorrowedBooks.Any())
-{
-    <div>
-        <ul class="pagination">
-            @for (int i = 1; i <= Math.Ceiling((double)Model.TotalBorrowedBooks / Model.BorrowPageSize); i++)
-            {
-                <li class="@(i == Model.BorrowPage ? "active" : "")">
-                    <a href="@Url.Action("ViewAccount", new { orderPage = Model.OrderPage, borrowPage = i, borrowPageSize = Model.BorrowPageSize })">@i</a>
-                </li>
-            }
-        </ul>
-    </div>
-
-    <!-- Page Size Dropdown -->
-    <form method="get" action="@Url.Action("ViewAccount")" class="form-inline">
-        <label for="BorrowPageSize">Items per page:</label>
-        <select id="BorrowPageSize" name="BorrowPageSize" onchange="this.form.submit()">
-            <option value="4" @(Model.BorrowPageSize == 4 ? "selected" : "")>4</option>
-            <option value="10" @(Model.BorrowPageSize == 10 ? "selected" : "")>10</option>
-            <option value="50" @(Model.BorrowPageSize == 50 ? "selected" : "")>50</option>
-            <option value="100" @(Model.BorrowPageSize == 100 ? "selected" : "")>100</option>
-        </select>
-    </form>
 }
