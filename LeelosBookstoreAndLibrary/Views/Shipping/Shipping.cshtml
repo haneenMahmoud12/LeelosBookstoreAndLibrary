@@ -69,7 +69,7 @@ else
 
 <!-- Form to enter a new address -->
 <div id="shipping-form" style="display:@(Model == null || string.IsNullOrEmpty(Model.Address) ? "block" : "none");">
-    @using (Html.BeginForm("ConfirmShipping", "Shipping", FormMethod.Post))
+    @using (Html.BeginForm("ConfirmShipping", "Shipping", FormMethod.Post, new { id = "editAddressForm"}))
     {
         <div class="form-group">
             <label for="address">Address:</label>
@@ -107,9 +107,41 @@ else
             @Html.ValidationMessage("PhoneNumber")
         </div>
 
-        <button type="submit" class="btn btn-primary">Confirm Shipping</button>
+        <a href="#" onclick="showConfirmationModal(); return false;" class="btn btn-primary">Save Shipping Address</a>
     }
 </div>
+
+<!-- Confirm Edit Modal -->
+<div class="modal" id="addressConfirmationModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to save changes <strong id="editAddress"></strong>?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmAddressBtn">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- JavaScript for handling modal and edit -->
+<script type="text/javascript">
+    function showConfirmationModal(title) {
+        var confirmationModal = new bootstrap.Modal(document.getElementById('addressConfirmationModal'));
+        confirmationModal.show();
+    }
+
+    document.getElementById("confirmAddressBtn").onclick = function () {
+        document.getElementById('editAddressForm').submit();
+    };
+</script>
 
 <script>
     // JavaScript to toggle between saved address and new address form

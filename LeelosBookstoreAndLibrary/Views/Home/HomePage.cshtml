@@ -4,90 +4,33 @@
     ViewBag.Title = "Books";
 }
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha512-+NqPlbbtM1QqiK8ZAo4Yrj2c4lNQoGv8P79DPtKzj++l5jnN39rHA/xsqn8zE9l0uSoxaCdrOgFs6yjyfbBxSg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="~/Scripts/datatables.js"></script>
+<link href="~/Scripts/datatables.css" rel="stylesheet" />
 <h2>Home Page</h2>
 
-<p>
-    @Html.ActionLink("Create New", "Create")
-</p>
-<table class="table">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.Title)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Description)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.AuthorId)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Genre)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Price)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.StockQuantity)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Rating)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.PublisherId)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.DatePublished)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.NumberOfPages)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.ImageMimeType)
-        </th>
-        <th></th>
-    </tr>
-
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.Title)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Description)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.AuthorId)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Genre)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Price)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.StockQuantity)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Rating)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.PublisherId)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.DatePublished)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.NumberOfPages)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.ImageMimeType)
-        </td>
-        <td>
-           @* @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
-            @Html.ActionLink("Details", "Details", new { id=item.Id }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.Id })*@
-        </td>
-    </tr>
-}
-
+<table class="display" style="width:100%" id="zisTable">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Author</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Harry Potter</td>
+            <td>J.K. Rowling</td>
+        </tr>
+        <tr>
+            <td>Young Elites</td>
+            <td>Marie Lu</td>
+        </tr>
+    </tbody>
 </table>
+
+
+<script>
+    $(document).ready(function() {
+        $('#zisTable').DataTable();
+    });
+</script>

@@ -17,6 +17,7 @@ namespace LeelosBookstoreAndLibrary.Models
         [Required(ErrorMessage = "Genre is required")]
         public string Genre { get; set; }
         [Required(ErrorMessage = "Price is required")]
+        [Range(10, float.MaxValue, ErrorMessage = "Price must be at least 10")]
         public float Price { get; set; }
         [Required(ErrorMessage = "Stock Quantity is required")]
         public int StockQuantity { get; set; } = 0;  // Default to 0

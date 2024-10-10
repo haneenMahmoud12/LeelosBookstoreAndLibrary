@@ -177,6 +177,8 @@
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\datatables.css" />
+    <Content Include="Content\datatables.min.css" />
     <Content Include="Content\logo.jpeg" />
     <Content Include="Content\logo.jpg" />
     <Content Include="favicon.ico" />
@@ -187,6 +189,8 @@
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Content\logo.webp" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
+    <Content Include="Scripts\datatables.css" />
+    <Content Include="Scripts\datatables.js" />
     <Content Include="Scripts\jquery-3.4.1.js" />
     <Content Include="Scripts\jquery-3.4.1.min.js" />
     <Content Include="Scripts\jquery-3.4.1.slim.js" />

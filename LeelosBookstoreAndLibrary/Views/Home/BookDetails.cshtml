@@ -37,11 +37,7 @@
     </script>
 }
 
-
-@*<partial name="_Notification" />
-*@
 <h2>Book Details</h2>
-
 
 @if (!ViewData.ModelState.IsValid)
 {
@@ -53,64 +49,73 @@
     </div>
 }
 
-
 <!-- Book Details Section -->
-<div>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>@Html.DisplayNameFor(model => model.Title)</dt>
-        <dd>@Html.DisplayFor(model => model.Title)</dd>
-
-        <dt>@Html.DisplayNameFor(model => model.Description)</dt>
-        <dd>@Html.DisplayFor(model => model.Description)</dd>
-
-        <dt>Author</dt>
-        <dd>@Html.DisplayFor(model => model.Author.FirstName) @Html.DisplayFor(model => model.Author.LastName)</dd>
-
-        <dt>@Html.DisplayNameFor(model => model.Genre)</dt>
-        <dd>@Html.DisplayFor(model => model.Genre)</dd>
-
-        <dt>@Html.DisplayNameFor(model => model.Price)</dt>
-        <dd>@($"{Math.Round(Model.Price,2)}")</dd>
-
-        <dt>@Html.DisplayNameFor(model => model.Rating)</dt>
-        <dd>@Html.DisplayFor(model => model.Rating)</dd>
-
-        <dt>Publisher</dt>
-        <dd>@Html.DisplayFor(model => model.Publisher.Name)</dd>
-
-        <dt>@Html.DisplayNameFor(model => model.DatePublished)</dt>
-        <dd>@Html.DisplayFor(model => model.DatePublished)</dd>
-
-        <dt>@Html.DisplayNameFor(model => model.NumberOfPages)</dt>
-        <dd>@Html.DisplayFor(model => model.NumberOfPages)</dd>
-
-
-        @if (Model.StockQuantity > 0) // Ensure the book is available
+<div class="row">
+    <div class="col-md-4">
+        @if (Model.ImageData != null && Model.ImageMimeType != null)
         {
-            if ((Session["UserId"] != null && (int)Session["UserId"] == 1) || (Session["UserId"] == null))
+            <img src="data:@Model.ImageMimeType;base64,@Convert.ToBase64String(Model.ImageData)" alt="Book Image" class="img-fluid" />
+        }
+    </div>
+    <div class="col-md-8">
+        <dl class="row">
+            <dt class="col-sm-1">@Html.DisplayNameFor(model => model.Title)</dt>
+            <dd class="col-sm-11">@Html.DisplayFor(model => model.Title)</dd>
+
+            <dt class="col-sm-1">Author</dt>
+            <dd class="col-sm-11">@Html.DisplayFor(model => model.Author.FirstName) @Html.DisplayFor(model => model.Author.LastName)</dd>
+
+            <dt class="col-sm-1">@Html.DisplayNameFor(model => model.Price)</dt>
+            <dd class="col-sm-11">@($"{Math.Round(Model.Price, 2)}")</dd>
+
+
+            @if (Model.StockQuantity > 0) // Ensure the book is available
             {
-                <!-- Add to Cart Section -->
-                <form action="@Url.Action("AddToCart", "ShoppingCart")" method="post">
-                    @Html.Hidden("bookId", Model.Id)
-                    <label>Quantity: </label>
-                    <input type="number" name="quantity" value="1" min="1" max="@Model.StockQuantity" />
-                    <button type="submit" class="btn btn-primary">Add to Cart</button>
-                </form>
+                if ((Session["UserId"] != null && (int)Session["UserId"] == 1) || (Session["UserId"] == null))
+                {
+                    <!-- Add to Cart Section -->
+                    <form action="@Url.Action("AddToCart", "ShoppingCart")" method="post" class="mb-2">
+                        @Html.Hidden("bookId", Model.Id)
+                        <label>Quantity: </label>
+                        <input type="number" name="quantity" value="1" min="1" max="@Model.StockQuantity" />
+                        <br>
+                        <button type="submit" class="btn btn-primary">Add to Cart</button>
+                    </form>
 
-                <!-- Borrow Section -->
-                <form action="@Url.Action("AddToBorrowCart", "Borrow")" method="post">
-                    @Html.Hidden("bookId", Model.Id)
-                    <button type="submit" class="btn btn-primary">Borrow</button>
-                </form>
+                    <!-- Borrow Section -->
+                    <form action="@Url.Action("AddToBorrowCart", "Borrow")" method="post">
+                        @Html.Hidden("bookId", Model.Id)
+                        <button type="submit" class="btn btn-primary">Borrow</button>
+                    </form>
+                }
             }
+            else if (Model.StockQuantity <= 0 && (int)Session["UserId"] == 1)
+            {
+                <span>Out of stock</span>
+            }
+        </dl>
+    </div>
+</div>
+<hr />
+<div class="row">
+    <dl>
+        <dt class="col-sm-1">@Html.DisplayNameFor(model => model.Genre)</dt>
+        <dd class="col-sm-11">@Html.DisplayFor(model => model.Genre)</dd>
 
+        <dt class="col-sm-1">@Html.DisplayNameFor(model => model.Description)</dt>
+        <dd class="col-sm-11">@Html.DisplayFor(model => model.Description)</dd>
 
-        }
-        else if (Model.StockQuantity <= 0 && (int)Session["UserId"] == 1)
-        {
-            <span>Out of stock</span>
-        }
+        <dt class="col-sm-1">Publisher</dt>
+        <dd class="col-sm-11">@Html.DisplayFor(model => model.Publisher.Name)</dd>
+
+        <dt class="col-sm-1">@Html.DisplayNameFor(model => model.DatePublished)</dt>
+        <dd class="col-sm-11">@Html.DisplayFor(model => model.DatePublished)</dd>
+
+        <dt class="col-sm-1">@Html.DisplayNameFor(model => model.NumberOfPages)</dt>
+        <dd class="col-sm-11">@Html.DisplayFor(model => model.NumberOfPages)</dd>
+
+        <dt class="col-sm-1">@Html.DisplayNameFor(model => model.Rating)</dt>
+        <dd class="col-sm-11">@Html.DisplayFor(model => model.Rating)</dd>
     </dl>
 </div>
 
@@ -145,7 +150,6 @@
         </div>
     </div>
 </div>
-
 
 <!-- JavaScript for handling modal and delete -->
 <script type="text/javascript">
